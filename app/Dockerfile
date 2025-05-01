@@ -1,17 +1,26 @@
-# Utiliza uma imagem leve do Python 3.11 como base
+# Usa uma imagem leve do Python 3.11 como base
 FROM python:3.11-slim
 
-# Define o diretório de trabalho dentro do container (é onde o código vai rodar)
+# Instala o Netcat (pacote correto: netcat-openbsd) e limpa o cache
+RUN apt-get update && \
+    apt-get install -y netcat-openbsd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia o arquivo de dependências do projeto para dentro do container
+# Copia o arquivo de dependências
 COPY requirements.txt .
 
-# Instala as dependências do projeto, sem guardar cache (mais leve)
+# Instala as dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o conteúdo da pasta local para o container
+# Copia todo o código do projeto para o container
 COPY . .
 
-# Comando padrão: iniciar o servidor Django acessível para fora do container
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Dá permissão de execução ao script que aguarda o PostgreSQL
+RUN chmod +x wait-for-postgres.sh
+
+# Comando padrão: espera o banco e inicia o servidor Django
+CMD ["./wait-for-postgres.sh", "python", "manage.py", "runserver", "0.0.0.0:8000"]

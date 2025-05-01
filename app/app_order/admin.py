@@ -1,36 +1,27 @@
-# Importa o módulo de administração do Django
 from django.contrib import admin
-
-# Importa o modelo que criamos no models.py
 from .models import OrdemServico
 
-# Registra o modelo na interface administrativa do Django
 @admin.register(OrdemServico)
 class OrdemServicoAdmin(admin.ModelAdmin):
     """
-    Configuração da interface de administração para o modelo OrdemServico.
-    Isso personaliza como os dados aparecem no painel /admin.
+    Configurações do painel administrativo da Ordem de Serviço.
     """
 
-    # Define quais colunas aparecerão na lista de OSs no admin
-    list_display = (
-        'id',               # ID automático da OS
-        'nome_cliente',     # Nome do cliente
-        'email_cliente',    # E-mail do cliente
-        'status',           # Status da OS (aguardando, em andamento, concluída)
-        'numero_os',        # Número manual da OS inserido pelo admin
-        'data_solicitacao'  # Data em que a OS foi criada
-    )
+    # Campos que aparecem na lista (tabela principal)
+    list_display = ('id', 'nome_cliente', 'email_cliente', 'status', 'numero_os', 'data_solicitacao')
 
-    # Adiciona filtros laterais no admin para facilitar a navegação
-    list_filter = (
-        'status',            # Permite filtrar por status
-        'data_solicitacao',  # Permite filtrar por data
-    )
+    # Campos pelos quais o admin pode filtrar lateralmente
+    list_filter = ('status', 'data_solicitacao')
 
-    # Permite pesquisar OSs por nome, e-mail ou número da OS
-    search_fields = (
+    # Campos pesquisáveis no topo
+    search_fields = ('nome_cliente', 'email_cliente', 'numero_os')
+
+    # Campos que serão exibidos no formulário de edição da OS
+    fields = (
         'nome_cliente',
         'email_cliente',
-        'numero_os',
+        'gmg',
+        'descricao',
+        'status',
+        'numero_os',  # ✅ agora aparecerá para edição
     )

@@ -50,5 +50,13 @@ class OrdemServico(models.Model):
         help_text="Data e hora da criação da solicitação."
     )
 
-    def __str__(self):
-        return f"OS {self.numero_os or self.id} - {self.nome_cliente} ({self.status})"
+    def save(self, *args, **kwargs):
+        """
+        Se o número da OS for preenchido e o status ainda for 'aguardando',
+        atualiza automaticamente o status para 'em andamento'.
+        """
+        if self.numero_os and self.status == 'aguardando':
+            self.status = 'em_andamento'
+
+        super().save(*args, **kwargs)
+

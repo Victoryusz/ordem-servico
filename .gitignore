@@ -1,43 +1,52 @@
-# Ignora pastas de cache do Python
+# Cache do Python
 __pycache__/
-
-# Ignora arquivos compilados do Python
-*.pyc
-
-# Ignora arquivos SQLite (banco de dados local)
-*.sqlite3
-db.sqlite3
-
-# Ignora arquivos de log (gerados durante execução)
-*.log
-
-# Ignora arquivos de variáveis de ambiente (segredos, senhas)
-*.env
-.env*
-
-# Ignora arquivos de tradução não compilados
-*.pot
-
-# Ignora outros arquivos compilados do Python (pyc, pyo, etc)
 *.py[cod]
 
-# Ignora arquivos temporários de editores como Vim
-*.swp
-
-# Ignora ambientes virtuais criados localmente
-.venv/
-
-# Ignora mídia de uploads (pode ser salva em nuvem ou separado)
-/media/
-
-# Ignora arquivos estáticos coletados pelo Django
-staticfiles/
-
-# Ignora configurações específicas do VS Code
-.vscode/
-
-# Ignora bancos de dados genéricos (ex: SQLite, test.db etc)
+# Banco de dados SQLite (caso esteja testando localmente)
+*.sqlite3
+db.sqlite3
 *.db
 
-# Ignora dados persistentes do PostgreSQL em volume Docker
+# Logs
+*.log
+
+# Arquivos de ambiente (segredos)
+.env
+.env.*
+
+# Arquivos de tradução
+*.pot
+*.mo
+
+# Arquivos temporários de editores
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ambientes virtuais
+.venv/
+venv/
+
+# Diretórios Django gerados
+/media/
+/staticfiles/
+static/
+
+# VSCode
+.vscode/
+
+# Dados persistentes do Docker
 postgres_data/
+__docker_cache__/
+*.pid
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de debug (caso salve dumps ou prints)
+*.debug
+
+# Arquivos do JetBrains (caso use PyCharm ou Rider)
+.idea/

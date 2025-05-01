@@ -9,7 +9,16 @@ from .models import OrdemServico
 # ORDEM DE SERVIÇO
 #############################################################
 
+### Debuggando
+def debug_view(func):
+    def wrapper(request, *args, **kwargs):
+        print(f"[DEBUG] View chamada: {func.__name__}")
+        return func(request, *args, **kwargs)
+    return wrapper
+### Debuggando
+
 @login_required(login_url="login")
+@debug_view  # 👈 debug-mode
 def solicitar_os(request):
     """
     View responsável por exibir o formulário de OS ao cliente
@@ -131,6 +140,7 @@ def painel_admin(request):
 
 
 @user_passes_test(is_funcionario, login_url="login")
+@debug_view  # 👈 debug-mode
 def listar_os_funcionario(request):
     """
     Lista todas as OS do funcionário logado (histórico completo).
@@ -142,6 +152,7 @@ def listar_os_funcionario(request):
 
 
 @user_passes_test(is_funcionario, login_url='login')
+@debug_view ## debug mode
 def concluir_os(request, numero_os):
     """
     Permite ao funcionário concluir uma OS: enviar imagem e comentário.
@@ -154,8 +165,12 @@ def concluir_os(request, numero_os):
             os = form.save(commit=False)
             os.status = "concluida"
             os.save()
+            messages.success(request, f"Ordem de serviço nº {os.numero_os} foi concluída com sucesso.")
             return redirect("listar_os_funcionario")
     else:
         form = ConcluirOSForm(instance=os)
 
     return render(request, "app_order/concluir_os.html", {"form": form, "os": os})
+
+## Debugando
+print("[DEBUG] Arquivo views.py carregado com sucesso.")

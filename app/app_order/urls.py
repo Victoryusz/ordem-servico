@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+print("[DEBUG] URLs carregadas com sucesso.")
 
 urlpatterns = [
     path("solicitar-os/", views.solicitar_os, name="solicitar_os"),
@@ -13,3 +14,12 @@ urlpatterns = [
     path('painel-funcionario/concluir/<str:numero_os>/', views.concluir_os, name='concluir_os'),
 
 ]
+
+# ✅ Código de debug seguro
+def debug_urls():
+    from django.urls import get_resolver
+    for pattern in get_resolver().url_patterns:
+        print(f"[URL DEBUG] {pattern}")
+
+# ❌ NÃO chame a função aqui!
+# debug_urls()  <- ISSO causará erro se ativado aqui

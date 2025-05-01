@@ -82,8 +82,8 @@ class ConcluirOSForm(forms.ModelForm):
     class Meta:
         model = OrdemServico
         fields = ["imagem_conclusao", "comentario_conclusao"]
-        widgets = {
-            "comentario_conclusao": forms.Textarea(
-                attrs={"rows": 4, "class": "form-control"}
-            ),
-        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Torna o campo de imagem obrigatório
+        self.fields["imagem_conclusao"].required = True

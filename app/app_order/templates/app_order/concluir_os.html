@@ -1,3 +1,6 @@
+<!--Carrega o templatetags/forms_extras.py-->
+{% load form_extras %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
@@ -10,19 +13,22 @@
   </head>
   <body class="bg-light">
     <div class="container mt-5" style="max-width: 600px">
-      <h2>Concluir Ordem de Serviço nº {{ os.numero_os }}</h2>
-
+      <h2 class="mb-4">Concluir Ordem de Serviço nº {{ os.numero_os }}</h2>
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
+        <!-- Foto da conclusão -->
         <div class="mb-3">
-          <label class="form-label">Comentário:</label>
-          {{ form.comentario_conclusao }}
+          <label class="form-label">
+            Foto da conclusão <span class="text-danger">*</span>
+          </label>
+          {{ form.imagem_conclusao|add_class:"form-control" }}
         </div>
 
+        <!-- Comentário -->
         <div class="mb-3">
-          <label class="form-label">Imagem da conclusão:</label>
-          {{ form.imagem_conclusao }}
+          <label class="form-label">Comentário</label>
+          {{ form.comentario_conclusao|add_class:"form-control" }}
         </div>
 
         <button type="submit" class="btn btn-success">Finalizar OS</button>

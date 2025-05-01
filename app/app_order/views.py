@@ -1,7 +1,15 @@
 from django.shortcuts import render, redirect
-from .models import OrdemServico
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .forms import OrdemServicoForm
+from .models import OrdemServico
 
+#############################################################
+# ORDEM DE SERVIÇO
+#############################################################
+
+@login_required(login_url='login')  # Garante que só usuários logados podem abrir OS
 def solicitar_os(request):
     """
     View responsável por exibir o formulário de OS ao cliente
@@ -9,26 +17,54 @@ def solicitar_os(request):
     """
 
     if request.method == 'POST':
-        # Se o cliente enviou o formulário preenchido (método POST)
-        form = OrdemServicoForm(request.POST)  # Preenche o form com os dados
+        form = OrdemServicoForm(request.POST)
 
-        if form.is_valid():  # Validação automática baseada no model
-            form.save()      # Salva a OS no banco
-            return redirect('os_sucesso')  # Redireciona para página de confirmação
+        if form.is_valid():
+            form.save()
+            return redirect('os_sucesso')  # Redireciona para a tela de sucesso
+
     else:
-        # Se for a primeira vez acessando a página (método GET)
         form = OrdemServicoForm()
 
-    # Renderiza a página com o formulário (form.html que vamos criar)
     return render(request, 'app_order/solicitar_os.html', {'form': form})
 
 
 def os_sucesso(request):
     """
-    Página de sucesso após o envio da OS.
-    Se a última OS enviada já tiver número atribuído, mostra na tela.
+    Exibe mensagem de sucesso e, se já houver número da OS,
+    exibe também ao solicitante.
     """
     ultima_os = OrdemServico.objects.last()
     return render(request, 'app_order/os_sucesso.html', {
         'ordem_servico': ultima_os
     })
+
+#############################################################
+# AUTENTICAÇÃO DE USUÁRIO
+#############################################################
+
+def login_view(request):
+    """
+    Exibe a tela de login e realiza a autenticação do usuário.
+    """
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('solicitar_os')
+        else:
+            messages.error(request, 'Usuário ou senha inválidos.')
+
+    return render(request, 'app_order/login.html')
+
+
+def logout_view(request):
+    """
+    Faz logout do usuário e redireciona para a tela de login.
+    """
+    logout(request)
+    return redirect('login')

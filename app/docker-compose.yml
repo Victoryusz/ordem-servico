@@ -1,0 +1,32 @@
+# Arquivo de orquestração dos containers Docker
+version: '3.9'
+
+services:
+  # Serviço de banco de dados PostgreSQL
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: os_db           # nome do banco
+      POSTGRES_USER: os_user       # usuário de acesso
+      POSTGRES_PASSWORD: os_pass   # senha de acesso
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # volume para manter dados persistentes
+
+  # Serviço da aplicação Django
+  web:
+    build: .                         # constrói usando o Dockerfile nesta pasta
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"                  # porta de acesso local:container
+    volumes:
+      - .:/app                       # mapeia os arquivos locais para dentro do container
+    depends_on:
+      - db                           # garante que o banco suba antes da aplicação
+    environment:
+      DB_NAME: os_db
+      DB_USER: os_user
+      DB_PASSWORD: os_pass
+      DB_HOST: db
+
+volumes:
+  postgres_data:

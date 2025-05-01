@@ -1,0 +1,5 @@
+# Django: framework principal do projeto
+django>=5.0
+
+# psycopg2: biblioteca para conectar o Django ao banco PostgreSQL
+psycopg2-binary

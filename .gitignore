@@ -1,0 +1,43 @@
+# Ignora pastas de cache do Python
+__pycache__/
+
+# Ignora arquivos compilados do Python
+*.pyc
+
+# Ignora arquivos SQLite (banco de dados local)
+*.sqlite3
+db.sqlite3
+
+# Ignora arquivos de log (gerados durante execução)
+*.log
+
+# Ignora arquivos de variáveis de ambiente (segredos, senhas)
+*.env
+.env*
+
+# Ignora arquivos de tradução não compilados
+*.pot
+
+# Ignora outros arquivos compilados do Python (pyc, pyo, etc)
+*.py[cod]
+
+# Ignora arquivos temporários de editores como Vim
+*.swp
+
+# Ignora ambientes virtuais criados localmente
+.venv/
+
+# Ignora mídia de uploads (pode ser salva em nuvem ou separado)
+/media/
+
+# Ignora arquivos estáticos coletados pelo Django
+staticfiles/
+
+# Ignora configurações específicas do VS Code
+.vscode/
+
+# Ignora bancos de dados genéricos (ex: SQLite, test.db etc)
+*.db
+
+# Ignora dados persistentes do PostgreSQL em volume Docker
+postgres_data/

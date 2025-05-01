@@ -48,7 +48,7 @@ class OrdemServicoForm(forms.ModelForm):
         }
 
 
-class RegistroUsuarioForm(forms.modelForm):
+class RegistroUsuarioForm(forms.ModelForm):
     """
     Formulário para registrar um novo usuário (usuário e senha).
     """

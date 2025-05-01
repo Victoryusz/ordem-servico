@@ -1,29 +1,27 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import OrdemServicoForm
 from .models import OrdemServico
+from .forms import RegistroUsuarioForm
 
 #############################################################
 # ORDEM DE SERVIÇO
 #############################################################
 
-
-@login_required(login_url="login")  # Garante que só usuários logados podem abrir OS
+@login_required(login_url="login")
 def solicitar_os(request):
     """
     View responsável por exibir o formulário de OS ao cliente
     e processar os dados enviados para salvar no banco.
     """
-
     if request.method == "POST":
         form = OrdemServicoForm(request.POST)
-
         if form.is_valid():
             form.save()
-            return redirect("os_sucesso")  # Redireciona para a tela de sucesso
-
+            return redirect("os_sucesso")
     else:
         form = OrdemServicoForm()
 
@@ -38,29 +36,76 @@ def os_sucesso(request):
     ultima_os = OrdemServico.objects.last()
     return render(request, "app_order/os_sucesso.html", {"ordem_servico": ultima_os})
 
-
 #############################################################
 # AUTENTICAÇÃO DE USUÁRIO
 #############################################################
 
-
 def login_view(request):
     """
-    Exibe a tela de login e realiza a autenticação do usuário.
+    Exibe a tela de login e redireciona conforme o perfil do usuário.
+    Se houver parâmetro ?next=, redireciona para ele após login.
     """
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        next_url = request.POST.get('next')
 
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-            return redirect("solicitar_os")
-        else:
-            messages.error(request, "Usuário ou senha inválidos.")
 
-    return render(request, "app_order/login.html")
+            if next_url:
+                return redirect(next_url)
+
+            if is_admin(user):
+                return redirect('painel_admin')
+            elif is_funcionario(user):
+                return redirect('painel_funcionario')
+            else:
+                return redirect('solicitar_os')
+
+        else:
+            messages.error(request, 'Usuário ou senha inválidos.')
+
+    else:
+        next_url = request.GET.get('next', '')
+
+    return render(request, 'app_order/login.html', {'next': next_url})
+
+
+def register_view(request):
+    """
+    Exibe o formulário de cadastro e cria um novo usuário.
+    """
+    if request.method == "POST":
+        form = RegistroUsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data["password"])
+            user.save()
+            login(request, user)
+            return redirect("solicitar_os")
+    else:
+        form = RegistroUsuarioForm()
+
+    return render(request, "app_order/register.html", {"form": form})
+
+
+# Função que verifica se o usuário é funcionário
+def is_funcionario(user):
+    return user.groups.filter(name="Funcionario").exists()
+
+
+# Função que verifica se o usuário é administrador (com print de debug)
+def is_admin(user):
+    if user.is_superuser:
+        print(f"[DEBUG] {user.username} é superusuário — acesso liberado.")
+        return True
+
+    grupos = [g.name for g in user.groups.all()]
+    print(f"[DEBUG] {user.username} - Grupos: {grupos}")
+    return "Administrador" in grupos
 
 
 def logout_view(request):
@@ -69,3 +114,18 @@ def logout_view(request):
     """
     logout(request)
     return redirect("login")
+
+
+@user_passes_test(is_funcionario, login_url='login')
+def painel_funcionario(request):
+    return render(request, 'app_order/painel_funcionario.html')
+
+
+@login_required(login_url='login')
+def painel_admin(request):
+    if not is_admin(request.user):
+        print("[DEBUG] Acesso negado! Usuário não reconhecido como admin.")
+        return redirect('login')
+
+    return render(request, 'app_order/painel_admin.html')
+

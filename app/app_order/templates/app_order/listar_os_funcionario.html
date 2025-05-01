@@ -22,28 +22,32 @@
       <table class="table table-striped table-bordered shadow-sm">
         <thead class="table-dark">
           <tr>
-            <th>ID</th>
+            <th>Número OS</th>
             <th>Cliente</th>
             <th>Email</th>
             <th>Descrição</th>
-            <th>Número OS</th>
             <th>Ação</th>
           </tr>
         </thead>
         <tbody>
           {% for os in ordens %}
           <tr>
-            <td>{{ os.id }}</td>
+            <td>{{ os.numero_os|default:"—" }}</td>
             <td>{{ os.nome_cliente }}</td>
             <td>{{ os.email_cliente }}</td>
-            <td>{{ os.descricao_problema }}</td>
-            <td>{{ os.numero_os }}</td>
+            <td>{{ os.descricao }}</td>
             <td>
+              {% if os.status == "concluida" %}
+              <span class="badge bg-success">Concluído</span>
+              {% elif os.numero_os %}
               <a
-                href="{% url 'concluir_os' os.id %}"
+                href="{% url 'concluir_os' numero_os=os.numero_os %}"
                 class="btn btn-success btn-sm"
                 >Concluir</a
               >
+              {% else %}
+              <span class="text-muted">Sem nº OS</span>
+              {% endif %}
             </td>
           </tr>
           {% endfor %}

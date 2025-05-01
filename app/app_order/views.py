@@ -1,11 +1,9 @@
-from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import OrdemServicoForm
+from .forms import OrdemServicoForm, RegistroUsuarioForm, ConcluirOSForm
 from .models import OrdemServico
-from .forms import RegistroUsuarioForm
 
 #############################################################
 # ORDEM DE SERVIÇO
@@ -47,10 +45,10 @@ def login_view(request):
     Exibe a tela de login e redireciona conforme o perfil do usuário.
     Se houver parâmetro ?next=, redireciona para ele após login.
     """
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        next_url = request.POST.get('next')
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        next_url = request.POST.get("next")
 
         user = authenticate(request, username=username, password=password)
 
@@ -61,19 +59,19 @@ def login_view(request):
                 return redirect(next_url)
 
             if is_admin(user):
-                return redirect('painel_admin')
+                return redirect("painel_admin")
             elif is_funcionario(user):
-                return redirect('painel_funcionario')
+                return redirect("painel_funcionario")
             else:
-                return redirect('solicitar_os')
+                return redirect("solicitar_os")
 
         else:
-            messages.error(request, 'Usuário ou senha inválidos.')
+            messages.error(request, "Usuário ou senha inválidos.")
 
     else:
-        next_url = request.GET.get('next', '')
+        next_url = request.GET.get("next", "")
 
-    return render(request, 'app_order/login.html', {'next': next_url})
+    return render(request, "app_order/login.html", {"next": next_url})
 
 
 def register_view(request):
@@ -118,32 +116,46 @@ def logout_view(request):
     return redirect("login")
 
 
-@user_passes_test(is_funcionario, login_url='login')
+@user_passes_test(is_funcionario, login_url="login")
 def painel_funcionario(request):
-    return render(request, 'app_order/painel_funcionario.html')
+    return render(request, "app_order/painel_funcionario.html")
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def painel_admin(request):
     if not is_admin(request.user):
         print("[DEBUG] Acesso negado! Usuário não reconhecido como admin.")
-        return redirect('login')
+        return redirect("login")
 
-    return render(request, 'app_order/painel_admin.html')
+    return render(request, "app_order/painel_admin.html")
 
-@user_passes_test(is_funcionario, login_url='login')
+
+@user_passes_test(is_funcionario, login_url="login")
 def listar_os_funcionario(request):
     """
     Lista todas as OS do funcionário logado (histórico completo).
     """
     os_funcionario = OrdemServico.objects.filter(usuario=request.user)
-    return render(request, 'app_order/listar_os_funcionario.html', {
-        'ordens': os_funcionario
-    })
+    return render(
+        request, "app_order/listar_os_funcionario.html", {"ordens": os_funcionario}
+    )
 
 
 @user_passes_test(is_funcionario, login_url='login')
-def concluir_os(request, os_id):
-    # aqui virá o formulário de finalização
-    return render(request, 'app_order/concluir_os.html')
+def concluir_os(request, numero_os):
+    """
+    Permite ao funcionário concluir uma OS: enviar imagem e comentário.
+    """
+    os = get_object_or_404(OrdemServico, numero_os=numero_os, usuario=request.user)
 
+    if request.method == "POST":
+        form = ConcluirOSForm(request.POST, request.FILES, instance=os)
+        if form.is_valid():
+            os = form.save(commit=False)
+            os.status = "concluida"
+            os.save()
+            return redirect("listar_os_funcionario")
+    else:
+        form = ConcluirOSForm(instance=os)
+
+    return render(request, "app_order/concluir_os.html", {"form": form, "os": os})

@@ -76,3 +76,14 @@ class RegistroUsuarioForm(forms.ModelForm):
 
         if senha and confirmar and senha != confirmar:
             raise ValidationError("As senhas não coincidem.")
+
+
+class ConcluirOSForm(forms.ModelForm):
+    class Meta:
+        model = OrdemServico
+        fields = ["imagem_conclusao", "comentario_conclusao"]
+        widgets = {
+            "comentario_conclusao": forms.Textarea(
+                attrs={"rows": 4, "class": "form-control"}
+            ),
+        }

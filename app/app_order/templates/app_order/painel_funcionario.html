@@ -1,2 +1,59 @@
-<h2>Bem-vindo ao painel do funcionário</h2>
-<p>Aqui você poderá visualizar e concluir ordens de serviço.</p>
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Painel do Funcionário</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <!-- Menu superior fixo -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Painel do Funcionário</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'solicitar_os' %}">Nova OS</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'listar_os_funcionario' %}"
+                >Minhas OS</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="{% url 'logout' %}">Sair</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <div class="container mt-5">
+      <div class="card p-4 shadow-sm">
+        <h2 class="mb-3">Bem-vindo, {{ request.user.username }}!</h2>
+        <p>Aqui você poderá visualizar e concluir suas ordens de serviço.</p>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <a href="{% url 'listar_os_funcionario' %}"
+              >📋 Ver minhas ordens de serviço</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

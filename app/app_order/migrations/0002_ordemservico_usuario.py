@@ -8,14 +8,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0001_initial'),
+        ("app_order", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ordemservico',
-            name='usuario',
-            field=models.ForeignKey(help_text='Funcionário que abriu esta OS.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='ordens_servico', to=settings.AUTH_USER_MODEL),
+            model_name="ordemservico",
+            name="usuario",
+            field=models.ForeignKey(
+                help_text="Funcionário que abriu esta OS.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ordens_servico",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

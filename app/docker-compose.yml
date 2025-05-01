@@ -15,7 +15,7 @@ services:
   # Serviço da aplicação Django
   web:
     build: .                         # constrói usando o Dockerfile nesta pasta
-    command: python manage.py runserver 0.0.0.0:8000
+    command: ./wait-for-postgres.sh python manage.py runserver 0.0.0.0:8000 # Aguarda o banco de dados PostgreSQL estar disponível antes de iniciar o servidor Django
     ports:
       - "8000:8000"                  # porta de acesso local:container
     volumes:

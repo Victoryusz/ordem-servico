@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Solicitação enviada</title>
+
+    <!-- Importa o CSS do Bootstrap via CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: #f8f9fa;
+        padding-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container text-center">
+      <!-- Ícone de sucesso (emoji por enquanto) -->
+      <div class="mb-4">
+        <span style="font-size: 64px">✅</span>
+      </div>
+
+      <!-- Mensagem principal -->
+      <h3 class="mb-3">Sua solicitação foi enviada com sucesso!</h3>
+
+      {% if ordem_servico.numero_os %}
+      <p><strong>Seu número de OS é:</strong> {{ ordem_servico.numero_os }}</p>
+      {% else %}
+      <p>Você receberá um número de OS assim que o administrador aprovar.</p>
+      {% endif %}
+
+      <!-- Botão de voltar ou nova solicitação -->
+      <a href="{% url 'solicitar_os' %}" class="btn btn-outline-primary mt-4">
+        Fazer nova solicitação
+      </a>
+    </div>
+  </body>
+</html>

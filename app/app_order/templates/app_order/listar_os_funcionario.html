@@ -10,6 +10,14 @@
   </head>
   <body class="bg-light">
     <div class="container mt-5">
+      {% if messages %}
+      <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <!-- Logout -->
       <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm"

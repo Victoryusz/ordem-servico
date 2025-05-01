@@ -10,7 +10,7 @@
   </head>
   <body class="bg-light">
     <div class="container mt-5" style="max-width: 600px">
-      <h3 class="mb-3">Concluir Ordem de Serviço #{{ os.id }}</h3>
+      <h2>Concluir Ordem de Serviço nº {{ os.numero_os }}</h2>
 
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}

@@ -9,6 +9,8 @@ urlpatterns = [
     path("register/", views.register_view, name="register"), 
     path('painel-funcionario/', views.painel_funcionario, name='painel_funcionario'),
     path('painel-admin/', views.painel_admin, name='painel_admin'),
+    path('painel-funcionario/ordens/', views.listar_os_funcionario, name='listar_os_funcionario'),
+    path('painel-funcionario/concluir/<int:os_id>/', views.concluir_os, name='concluir_os'),
 
 
 ]

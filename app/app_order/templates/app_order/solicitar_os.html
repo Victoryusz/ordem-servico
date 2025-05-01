@@ -19,6 +19,13 @@
   </head>
   <body>
     <div class="container">
+      <!-- Botão de logout no topo à direita -->
+      <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
+          Log-out
+        </a>
+      </div>
+
       <!-- Título da página -->
       <h2 class="mb-4">Solicitar Ordem de Serviço</h2>
 
@@ -26,12 +33,7 @@
       <div class="card shadow-sm">
         <div class="card-body">
           <form method="post">
-            {% csrf_token %}
-            <!-- Proteção contra ataques CSRF (obrigatório no Django) -->
-
-            <!-- Renderiza os campos do formulário com Bootstrap -->
-            {{ form.as_p }}
-
+            {% csrf_token %} {{ form.as_p }}
             <button type="submit" class="btn btn-primary mt-3">
               Enviar solicitação
             </button>

@@ -10,6 +10,13 @@
   </head>
   <body class="bg-light">
     <div class="container mt-5">
+      <!-- Botão de logout no canto superior direito -->
+      <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
+          Log-out
+        </a>
+      </div>
+
       <div class="card p-4 shadow-sm">
         <h2 class="mb-4">Painel do Administrador</h2>
 
@@ -20,10 +27,6 @@
           <li class="list-group-item">Cadastrar ou editar usuários</li>
           <li class="list-group-item">Ver relatórios</li>
         </ul>
-
-        <div class="mt-4">
-          <a href="{% url 'logout' %}" class="btn btn-outline-danger">Sair</a>
-        </div>
       </div>
     </div>
   </body>

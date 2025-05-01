@@ -20,7 +20,9 @@ def solicitar_os(request):
     if request.method == "POST":
         form = OrdemServicoForm(request.POST)
         if form.is_valid():
-            form.save()
+            os = form.save(commit=False)
+            os.usuario = request.user
+            os.save()
             return redirect("os_sucesso")
     else:
         form = OrdemServicoForm()
@@ -128,4 +130,20 @@ def painel_admin(request):
         return redirect('login')
 
     return render(request, 'app_order/painel_admin.html')
+
+@user_passes_test(is_funcionario, login_url='login')
+def listar_os_funcionario(request):
+    """
+    Lista todas as OS do funcionário logado (histórico completo).
+    """
+    os_funcionario = OrdemServico.objects.filter(usuario=request.user)
+    return render(request, 'app_order/listar_os_funcionario.html', {
+        'ordens': os_funcionario
+    })
+
+
+@user_passes_test(is_funcionario, login_url='login')
+def concluir_os(request, os_id):
+    # aqui virá o formulário de finalização
+    return render(request, 'app_order/concluir_os.html')
 

@@ -1,17 +1,24 @@
 # Create your models here.
 from django.db import models
-
-
+from django.contrib.auth.models import User
 class OrdemServico(models.Model):
     """
     Modelo que representa uma Ordem de Serviço solicitada por um cliente.
     """
-
+    
     STATUS_CHOICES = [
         ("aguardando", "Aguardando aprovação"),  # padrão inicial
         ("em_andamento", "Em andamento"),  # após adm inserir o número da OS
         ("concluida", "Concluída"),  # após cliente inserir o código de finalização
     ]
+
+    usuario = models.ForeignKey(
+    User,
+    on_delete=models.CASCADE,
+    related_name="ordens_servico",
+    help_text="Funcionário que abriu esta OS.",
+    null=True  # temporariamente, para evitar erro nas OS antigas
+)
 
     nome_cliente = models.CharField(
         max_length=100, help_text="Nome do cliente que está solicitando o serviço."
@@ -56,3 +63,4 @@ class OrdemServico(models.Model):
             self.status = "em_andamento"
 
         super().save(*args, **kwargs)
+

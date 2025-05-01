@@ -7,21 +7,77 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='OrdemServico',
+            name="OrdemServico",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nome_cliente', models.CharField(help_text='Nome do cliente que está solicitando o serviço.', max_length=100)),
-                ('email_cliente', models.EmailField(help_text='E-mail para contato com o cliente.', max_length=254)),
-                ('gmg', models.CharField(help_text='Identificação ou código específico fornecido pelo cliente (ex: GMG: 123456).', max_length=50, verbose_name='GMG')),
-                ('descricao', models.TextField(help_text='Descrição detalhada do problema ou necessidade do cliente.')),
-                ('status', models.CharField(choices=[('aguardando', 'Aguardando aprovação'), ('em_andamento', 'Em andamento'), ('concluida', 'Concluída')], default='aguardando', help_text='Status atual da OS: aguardando, em andamento ou concluída.', max_length=20)),
-                ('numero_os', models.CharField(blank=True, help_text='Número da OS gerado pelo administrador (preenchido manualmente).', max_length=20, null=True)),
-                ('data_solicitacao', models.DateTimeField(auto_now_add=True, help_text='Data e hora da criação da solicitação.')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "nome_cliente",
+                    models.CharField(
+                        help_text="Nome do cliente que está solicitando o serviço.",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "email_cliente",
+                    models.EmailField(
+                        help_text="E-mail para contato com o cliente.", max_length=254
+                    ),
+                ),
+                (
+                    "gmg",
+                    models.CharField(
+                        help_text="Identificação ou código específico fornecido pelo cliente (ex: GMG: 123456).",
+                        max_length=50,
+                        verbose_name="GMG",
+                    ),
+                ),
+                (
+                    "descricao",
+                    models.TextField(
+                        help_text="Descrição detalhada do problema ou necessidade do cliente."
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("aguardando", "Aguardando aprovação"),
+                            ("em_andamento", "Em andamento"),
+                            ("concluida", "Concluída"),
+                        ],
+                        default="aguardando",
+                        help_text="Status atual da OS: aguardando, em andamento ou concluída.",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "numero_os",
+                    models.CharField(
+                        blank=True,
+                        help_text="Número da OS gerado pelo administrador (preenchido manualmente).",
+                        max_length=20,
+                        null=True,
+                    ),
+                ),
+                (
+                    "data_solicitacao",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="Data e hora da criação da solicitação.",
+                    ),
+                ),
             ],
         ),
     ]

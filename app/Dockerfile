@@ -1,3 +1,4 @@
+# Versão apenas para desenvolvimento, não é recomendada para produção
 FROM python:3.11-slim
 
 WORKDIR /app

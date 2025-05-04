@@ -24,13 +24,3 @@ Sistema web de Ordens de Serviço (OS) com autenticação, controle de status e 
 > 🧪 **Status:** developing...
 
 ---
-
-# Passo a passo: 
-
-- Abra o diretorio na pasta raiz "APP"
-
-- Contruir e inicar os containers: `docker-compose up --build` 
-- Ou se preferir rodar em segundo plano: `docker-compose up -d --build`
-- Verifique os containers em execução: `docker-compose ps`
-- Após confirmar execução, acesse a aplicação na porta 8000: http://localhost:8000
-- Crie seu superusuario para ter acesso: `docker-compose exec web python manage.py createsuperuser`

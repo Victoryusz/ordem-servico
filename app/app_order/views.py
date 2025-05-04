@@ -86,14 +86,13 @@ def login_view(request):
 def register_view(request):
     """
     Exibe o formulário de cadastro e cria um novo usuário.
+    A senha já será tratada com segurança pelo método `save()` do formulário.
     """
     if request.method == "POST":
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data["password"])
-            user.save()
-            login(request, user)
+            user = form.save()  # 👍 Já chama set_password internamente
+            login(request, user)  # Autentica automaticamente após o cadastro
             return redirect("solicitar_os")
     else:
         form = RegistroUsuarioForm()
@@ -126,11 +125,13 @@ def logout_view(request):
 
 
 @user_passes_test(is_funcionario, login_url="login")
+@debug_view  # 👈 debug-mode
 def painel_funcionario(request):
     return render(request, "app_order/painel_funcionario.html")
 
 
 @login_required(login_url="login")
+@debug_view  # 👈 debug-mode
 def painel_admin(request):
     if not is_admin(request.user):
         print("[DEBUG] Acesso negado! Usuário não reconhecido como admin.")

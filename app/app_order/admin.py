@@ -12,7 +12,6 @@ class OrdemServicoAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "nome_cliente",
-        "email_cliente",
         "status",
         "numero_os",
         "data_solicitacao",
@@ -22,12 +21,11 @@ class OrdemServicoAdmin(admin.ModelAdmin):
     list_filter = ("status", "data_solicitacao")
 
     # Campos pesquisáveis no topo
-    search_fields = ("nome_cliente", "email_cliente", "numero_os")
+    search_fields = ("nome_cliente", "numero_os")
 
     # Campos que serão exibidos no formulário de edição da OS
     fields = (
         "nome_cliente",
-        "email_cliente",
         "gmg",
         "descricao",
         "status",

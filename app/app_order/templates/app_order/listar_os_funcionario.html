@@ -32,9 +32,8 @@
           <tr>
             <th>Número OS</th>
             <th>Cliente</th>
-            <th>Email</th>
             <th>Descrição</th>
-            <th>Ação</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +41,6 @@
           <tr>
             <td>{{ os.numero_os|default:"—" }}</td>
             <td>{{ os.nome_cliente }}</td>
-            <td>{{ os.email_cliente }}</td>
             <td>{{ os.descricao }}</td>
             <td>
               {% if os.status == "concluida" %}

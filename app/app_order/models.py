@@ -5,7 +5,7 @@ from django.core.validators import FileExtensionValidator
 
 class OrdemServico(models.Model):
     """
-    Modelo que representa uma Ordem de Serviço solicitada por um cliente.
+    Modelo que representa uma Ordem de Serviço solicitada por um colaborador.
     """
 
     STATUS_CHOICES = [
@@ -36,23 +36,23 @@ class OrdemServico(models.Model):
         help_text="Comentário final do funcionário sobre a conclusão do serviço."
     )
 
-    nome_cliente = models.CharField(
+    nome_cliente = models.CharField( # Nome abaixo da box: seu nome completo
         max_length=100,
-        help_text="Nome do cliente que está solicitando o serviço."
+        help_text=""
     )
 
-    email_cliente = models.EmailField(
-        help_text="E-mail para contato com o cliente."
-    )
+#    email_colaborador = models.EmailField(
+#        help_text="E-mail para contato com o colaborador."
+#    )
 
     gmg = models.CharField(
         max_length=50,
         verbose_name="GMG",
-        help_text="Identificação ou código específico fornecido pelo cliente (ex: GMG: 123456)."
+        help_text="Identificação do Gerador."
     )
 
-    descricao = models.TextField(
-        help_text="Descrição detalhada do problema ou necessidade do cliente."
+    descricao = models.TextField( #Descrição abaixo da box: descreva o serviço
+        help_text=""
     )
 
     status = models.CharField(

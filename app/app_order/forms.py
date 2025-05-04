@@ -7,24 +7,22 @@ from django.core.exceptions import ValidationError
 class OrdemServicoForm(forms.ModelForm):
     """
     Formulário baseado no modelo OrdemServico.
-    Usado para que o cliente possa enviar uma solicitação de OS.
+    Usado para que o colaborador possa enviar uma solicitação de OS.
     """
 
     class Meta:
         model = OrdemServico  # Diz ao Django de qual model esse form se baseia
         fields = [
             "nome_cliente",
-            "email_cliente",
             "gmg",
             "descricao",
         ]  # Campos que o usuário pode preencher
 
         # Labels mais amigáveis (opcional, mas melhora a aparência)
         labels = {
-            "nome_cliente": "Nome completo",
-            "email_cliente": "E-mail para contato",
-            "gmg": "GMG",
-            "descricao": "Descreva o problema",
+            "nome_cliente": "Nome do Colaborador",
+            "gmg": "GMG do Gerador",
+            "descricao": "Tipo de serviço a ser executado",
         }
 
         # Campos com widgets do Bootstrap (será aplicado no HTML)
@@ -33,17 +31,14 @@ class OrdemServicoForm(forms.ModelForm):
                 attrs={
                     "rows": 5,
                     "class": "form-control",
-                    "placeholder": "Descreva detalhadamente o problema...",
+                    "placeholder": "Descreva o serviço ex: Montagem do motor, revisão, troca de filtros, limpeza...",
                 }
             ),
             "nome_cliente": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Seu nome completo"}
             ),
-            "email_cliente": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "exemplo@empresa.com"}
-            ),
             "gmg": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Ex: GMG123456"}
+                attrs={"class": "form-control", "placeholder": "Ex: 432"}
             ),
         }
 
@@ -53,6 +48,7 @@ class RegistroUsuarioForm(forms.ModelForm):
     Formulário para registrar um novo usuário (usuário e senha).
     """
 
+    # Campos adicionais para senha e confirmação
     password = forms.CharField(
         label="Senha", widget=forms.PasswordInput(attrs={"class": "form-control"})
     )
@@ -70,12 +66,27 @@ class RegistroUsuarioForm(forms.ModelForm):
         }
 
     def clean(self):
+        """
+        Verifica se as senhas coincidem.
+        """
         cleaned_data = super().clean()
         senha = cleaned_data.get("password")
         confirmar = cleaned_data.get("confirm_password")
 
         if senha and confirmar and senha != confirmar:
             raise ValidationError("As senhas não coincidem.")
+
+    def save(self, commit=True):
+        """
+        ⚠️ Método ajustado:
+        Salva o usuário com a senha criptografada usando `set_password`,
+        garantindo compatibilidade com o sistema de autenticação do Django.
+        """
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])  # 🔐 Criptografa a senha
+        if commit:
+            user.save()
+        return user
 
 
 class ConcluirOSForm(forms.ModelForm):

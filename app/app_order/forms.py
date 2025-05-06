@@ -20,7 +20,7 @@ class OrdemServicoForm(forms.ModelForm):
 
         # Labels mais amigáveis (opcional, mas melhora a aparência)
         labels = {
-            "nome_cliente": "Nome do Colaborador",
+            "nome_cliente": "Nome do Técnico",
             "gmg": "GMG do Gerador",
             "descricao": "Tipo de serviço a ser executado",
         }

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import api_os_funcionario
 print("[DEBUG] URLs carregadas com sucesso.")
 
 urlpatterns = [
@@ -12,7 +13,8 @@ urlpatterns = [
     path("painel-admin/", views.painel_admin, name="painel_admin"),
     path("painel-funcionario/ordens/",views.listar_os_funcionario, name="listar_os_funcionario"),
     path('painel-funcionario/concluir/<str:numero_os>/', views.concluir_os, name='concluir_os'),
-
+    path('api/verificar-numero-os/<int:pk>/', views.verificar_numero_os, name='verificar_numero_os'),
+    path('api/os-funcionario/', api_os_funcionario, name='api_os_funcionario'),
 ]
 
 # ✅ Código de debug seguro

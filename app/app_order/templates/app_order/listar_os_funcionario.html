@@ -1,39 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Ordens de Serviço em Andamento</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-light">
-    <div class="container mt-5">
-      {% if messages %}
+{% extends "app_order/base.html" %}
+{% load static %}
+{% block title %}Minhas Ordens de Serviço{% endblock %}
+
+{% block content %}
+<div class="py-4">
+  <h3 class="mb-4 text-center">
+    <i class="bi bi-clipboard-check-fill text-primary me-2"></i>Ordens de Serviço em Andamento
+  </h3>
+
+  <div id="mensagens">
+    {% if messages %}
       <div class="mb-3">
         {% for message in messages %}
-        <div class="alert alert-success">{{ message }}</div>
+          <div class="alert alert-success">{{ message }}</div>
         {% endfor %}
       </div>
-      {% endif %}
+    {% endif %}
+  </div>
 
-      <!-- Logout -->
-      <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm"
-          >Sair</a
-        >
-      </div>
-
-      <h3 class="mb-4">Ordens de Serviço em Andamento</h3>
-
-      <table class="table table-striped table-bordered shadow-sm">
+  <div id="tabela-os">
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered shadow-sm align-middle text-center">
         <thead class="table-dark">
           <tr>
             <th>Número OS</th>
-            <th>Cliente</th>
+            <th>Técnico</th>
             <th>Descrição</th>
             <th>Status</th>
+            <th>Ação</th>
           </tr>
         </thead>
         <tbody>
@@ -44,21 +38,69 @@
             <td>{{ os.descricao }}</td>
             <td>
               {% if os.status == "concluida" %}
-              <span class="badge bg-success">Concluído</span>
-              {% elif os.numero_os %}
-              <a
-                href="{% url 'concluir_os' numero_os=os.numero_os %}"
-                class="btn btn-success btn-sm"
-                >Concluir</a
-              >
+                <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Concluído</span>
+              {% elif os.status == "em_andamento" %}
+                <span class="badge bg-info"><i class="bi bi-hourglass-split me-1"></i>Em andamento</span>
               {% else %}
-              <span class="text-muted">Sem nº OS</span>
+                <span class="badge bg-warning text-dark"><i class="bi bi-clock-fill me-1"></i>Aguardando</span>
               {% endif %}
+            </td>
+            <td>
+              <div class="d-flex justify-content-center gap-2">
+                {% if os.status != "concluida" and os.numero_os %}
+                  <a href="{% url 'concluir_os' numero_os=os.numero_os %}" class="btn btn-success btn-sm">
+                    <i class="bi bi-check2-square"></i> Concluir
+                  </a>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDetalhes{{ os.id }}">
+                  <i class="bi bi-eye-fill"></i> Ver
+                </button>
+              </div>
+
+              <!-- Modal -->
+              <div class="modal fade" id="modalDetalhes{{ os.id }}" tabindex="-1" aria-labelledby="modalLabel{{ os.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="modalLabel{{ os.id }}">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i> Detalhes da OS nº {{ os.numero_os }}
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                      <p><strong><i class="bi bi-person-fill"></i> Técnico:</strong> {{ os.nome_cliente }}</p>
+                      <p><strong><i class="bi bi-chat-left-text"></i> Descrição:</strong> {{ os.descricao }}</p>
+                      <p><strong><i class="bi bi-flag-fill"></i> Status:</strong> {{ os.get_status_display }}</p>
+                      <p><strong><i class="bi bi-calendar-event"></i> Data:</strong> {{ os.data_solicitacao }}</p>
+                      {% if os.comentario_conclusao %}
+                        <p><strong><i class="bi bi-journal-text"></i> Comentário:</strong> {{ os.comentario_conclusao }}</p>
+                      {% endif %}
+                      {% if os.imagem_conclusao %}
+                        <p>
+                          <strong><i class="bi bi-image-fill"></i> Imagem:</strong><br />
+                          <img src="{{ os.imagem_conclusao.url }}" class="img-fluid rounded shadow-sm" />
+                        </p>
+                      {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </body>
-</html>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- 🔁 Atualização automática via JS -->
+<script src="{% static 'app_order/js/ordens_auto_reload.js' %}"></script>
+{% endblock %}

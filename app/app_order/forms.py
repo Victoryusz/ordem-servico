@@ -1,56 +1,50 @@
 from django import forms
-from .models import OrdemServico
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from .models import OrdemServico
+
+User = get_user_model()
 
 
 class OrdemServicoForm(forms.ModelForm):
     """
-    Formulário baseado no modelo OrdemServico.
-    Usado para que o colaborador possa enviar uma solicitação de OS.
+    Form para colaborador solicitar OS.
     """
-
     class Meta:
-        model = OrdemServico  # Diz ao Django de qual model esse form se baseia
-        fields = [
-            "nome_cliente",
-            "gmg",
-            "descricao",
-        ]  # Campos que o usuário pode preencher
-
-        # Labels mais amigáveis (opcional, mas melhora a aparência)
+        model = OrdemServico
+        fields = ["nome_cliente", "gmg", "descricao"]
         labels = {
             "nome_cliente": "Nome do Técnico",
             "gmg": "GMG do Gerador",
             "descricao": "Tipo de serviço a ser executado",
         }
-
-        # Campos com widgets do Bootstrap (será aplicado no HTML)
         widgets = {
-            "descricao": forms.Textarea(
-                attrs={
-                    "rows": 5,
-                    "class": "form-control",
-                    "placeholder": "Descreva o serviço ex: Montagem do motor, revisão, troca de filtros, limpeza...",
-                }
-            ),
             "nome_cliente": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Seu nome completo"}
             ),
             "gmg": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Ex: 432"}
             ),
+            "descricao": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 5,
+                    "placeholder": (
+                        "Descreva o serviço ex: Montagem do motor, revisão, "
+                        "troca de filtros, limpeza..."
+                    ),
+                }
+            ),
         }
 
 
 class RegistroUsuarioForm(forms.ModelForm):
     """
-    Formulário para registrar um novo usuário (usuário e senha).
+    Form para registrar usuário com confirmação de senha.
     """
-
-    # Campos adicionais para senha e confirmação
     password = forms.CharField(
-        label="Senha", widget=forms.PasswordInput(attrs={"class": "form-control"})
+        label="Senha",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
     confirm_password = forms.CharField(
         label="Confirmar senha",
@@ -66,35 +60,83 @@ class RegistroUsuarioForm(forms.ModelForm):
         }
 
     def clean(self):
-        """
-        Verifica se as senhas coincidem.
-        """
         cleaned_data = super().clean()
-        senha = cleaned_data.get("password")
-        confirmar = cleaned_data.get("confirm_password")
-
-        if senha and confirmar and senha != confirmar:
-            raise ValidationError("As senhas não coincidem.")
+        pwd = cleaned_data.get("password")
+        confirm = cleaned_data.get("confirm_password")
+        if pwd and confirm and pwd != confirm:
+            self.add_error("confirm_password", "As senhas não coincidem.")
+        return cleaned_data
 
     def save(self, commit=True):
-        """
-        ⚠️ Método ajustado:
-        Salva o usuário com a senha criptografada usando `set_password`,
-        garantindo compatibilidade com o sistema de autenticação do Django.
-        """
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data["password"])  # 🔐 Criptografa a senha
+        user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()
         return user
 
 
 class ConcluirOSForm(forms.ModelForm):
+    """
+    Form para concluir a OS (imagem e comentário).
+    """
     class Meta:
         model = OrdemServico
         fields = ["imagem_conclusao", "comentario_conclusao"]
+        widgets = {
+            "comentario_conclusao": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3, "placeholder": "Comentário sobre conclusão"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Torna o campo de imagem obrigatório
+        # imagem obrigatória na conclusão
         self.fields["imagem_conclusao"].required = True
+
+
+class StageActionForm(forms.Form):
+    """
+    Form para ações na etapa: concluir, repassar ou finalizar OS.
+    """
+    comentario = forms.CharField(
+        label="Comentário",
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
+    )
+    foto = forms.ImageField(
+        label="Foto (opcional)",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"class": "form-control"})
+    )
+    repassar_para = forms.ModelChoiceField(
+        label="Repassar para",
+        required=False,
+        queryset=User.objects.none(),  # queryset configurado no __init__
+        help_text="Escolha outro técnico (opcional).",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )
+    finalizar_os = forms.BooleanField(
+        label="Finalizar OS",
+        required=False,
+        help_text="Marcar OS como encerrada após esta etapa."
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['repassar_para'].queryset = (
+                User.objects.filter(groups__name="Funcionario").exclude(pk=user.pk)
+            )
+
+    def clean(self):
+        data = super().clean()
+        if not any([
+            data.get("comentario"),
+            data.get("foto"),
+            data.get("repassar_para"),
+            data.get("finalizar_os")
+        ]):
+            raise ValidationError(
+                "Selecione ao menos uma ação: comentário, foto, repasse ou finalizar OS."
+            )
+        return data

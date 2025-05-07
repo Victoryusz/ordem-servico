@@ -74,26 +74,6 @@ class RegistroUsuarioForm(forms.ModelForm):
             user.save()
         return user
 
-
-class ConcluirOSForm(forms.ModelForm):
-    """
-    Form para concluir a OS (imagem e comentário).
-    """
-    class Meta:
-        model = OrdemServico
-        fields = ["imagem_conclusao", "comentario_conclusao"]
-        widgets = {
-            "comentario_conclusao": forms.Textarea(
-                attrs={"class": "form-control", "rows": 3, "placeholder": "Comentário sobre conclusão"}
-            ),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # imagem obrigatória na conclusão
-        self.fields["imagem_conclusao"].required = True
-
-
 class StageActionForm(forms.Form):
     """
     Form para ações na etapa: concluir, repassar ou finalizar OS.

@@ -1,0 +1,41 @@
+{% extends "app_order/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Serviço {{ stage.ordem }} da OS {{ stage.order.numero_os }}</h2>
+  <p><strong>Status:</strong> {{ stage.get_status_display }}</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      {{ form.comentario.label_tag }}
+      {{ form.comentario }}
+      {{ form.comentario.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.foto.label_tag }}
+      {{ form.foto }}
+      {{ form.foto.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.repassar_para.label_tag }}
+      {{ form.repassar_para }}
+      <small class="form-text text-muted">{{ form.repassar_para.help_text }}</small>
+      {{ form.repassar_para.errors }}
+    </div>
+
+    <div class="form-check mb-3">
+      {{ form.finalizar_os }}
+      {{ form.finalizar_os.label_tag }}
+      <small class="form-text text-muted">{{ form.finalizar_os.help_text }}</small>
+      {{ form.finalizar_os.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-success">Enviar</button>
+    <a href="{% url 'listar_os_funcionario' %}" class="btn btn-secondary">Voltar</a>
+  </form>
+</div>
+{% endblock %}

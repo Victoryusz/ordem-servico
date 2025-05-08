@@ -1,0 +1,24 @@
+<ul class="list-group">
+    {% for st in etapas %}
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <div>
+            <strong>Serviço {{ st.ordem }} – {{ st.get_status_display }}</strong><br>
+            Técnico: {{ st.tecnico.get_full_name|default:st.tecnico.username }}<br>
+            {{ st.criado_em|date:"d/m/Y H:i" }}
+          </div>
+          {% if st.foto %}
+            <img src="{{ st.foto.url }}" class="img-thumbnail" style="max-width:80px;" alt="Foto Etapa"/>
+          {% endif %}
+        </div>
+        {% if st.comentario %}
+          <p class="mt-2 mb-0"><em>{{ st.comentario }}</em></p>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="list-group-item text-center text-muted">
+        Nenhuma serviço registrada ainda.
+      </li>
+    {% endfor %}
+  </ul>
+  

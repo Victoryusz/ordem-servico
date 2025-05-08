@@ -1,0 +1,215 @@
+Pensou por um segundo
+
+
+```django
+{% extends "app_order/base_admin.html" %}
+{% load static %}
+
+{% block title %}Gerenciar Usuários — Juma OS{% endblock %}
+{% block header %}Gerenciar Usuários{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>Email</th>
+        <th>Grupos</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr data-user-id="{{ u.id }}">
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.groups.all|join:", " }}</td>
+        <td class="cell-status">
+          {% if u.is_active %}
+            <span class="badge bg-success">Ativo</span>
+          {% else %}
+            <span class="badge bg-secondary">Inativo</span>
+          {% endif %}
+        </td>
+        <td class="d-flex gap-1">
+          {% if u != request.user %}
+            <button
+              class="btn btn-sm btn-outline-primary btn-edit-user"
+              data-user-id="{{ u.id }}"
+            >Editar</button>
+            <button
+              class="btn btn-sm btn-outline-danger btn-delete-user"
+              data-user-id="{{ u.id }}"
+            >Excluir</button>
+          {% endif %}
+          <button
+            class="btn btn-sm btn-outline-secondary btn-reset-pw"
+            data-user-id="{{ u.id }}"
+          >Resetar Senha</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">Nenhum usuário cadastrado.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+<!-- Modal Multi-Ação Usuário -->
+<div class="modal fade" id="modalUserActions" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formUserEdit">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Usuário</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editUserId">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" id="editUsername" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" id="editEmail" class="form-control" required>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="editIsActive">
+            <label class="form-check-label" for="editIsActive">Ativo</label>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Grupos</label>
+            <div id="groupsCheckboxes"></div>
+          </div>
+          <div id="editFeedback" class="text-danger"></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+// CSRF helper
+function getCookie(name) {
+  let v = null;
+  document.cookie.split(';').forEach(c => {
+    const [k,val] = c.trim().split('=');
+    if (k===name) v = decodeURIComponent(val);
+  });
+  return v;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const csrftoken = getCookie('csrftoken');
+  const modalEl = document.getElementById('modalUserActions');
+  const modal = new bootstrap.Modal(modalEl);
+
+  // form fields
+  const inputId     = modalEl.querySelector('#editUserId');
+  const inputUser   = modalEl.querySelector('#editUsername');
+  const inputEmail  = modalEl.querySelector('#editEmail');
+  const checkActive = modalEl.querySelector('#editIsActive');
+  const groupsDiv   = modalEl.querySelector('#groupsCheckboxes');
+  const feedback    = modalEl.querySelector('#editFeedback');
+
+  // EDIT
+  document.querySelectorAll('.btn-edit-user').forEach(btn => {
+    btn.onclick = async () => {
+      const uid = btn.dataset.userId;
+      const resp = await fetch(`/painel-admin/usuarios/${uid}/edit/`);
+      const { user, all_groups } = await resp.json();
+      inputId.value      = user.id;
+      inputUser.value    = user.username;
+      inputEmail.value   = user.email;
+      checkActive.checked= user.is_active;
+      groupsDiv.innerHTML = all_groups.map(g => `
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox"
+                 id="group-${g.id}" value="${g.id}"
+                 ${user.groups.includes(g.id) ? 'checked' : ''}>
+          <label class="form-check-label" for="group-${g.id}">
+            ${g.name}
+          </label>
+        </div>
+      `).join('');
+      feedback.textContent = '';
+      modal.show();
+    };
+  });
+
+  // SUBMIT EDIT
+  document.getElementById('formUserEdit').onsubmit = async e => {
+    e.preventDefault();
+    const uid = inputId.value;
+    const formData = new FormData();
+    formData.append('username', inputUser.value);
+    formData.append('email', inputEmail.value);
+    if (checkActive.checked) formData.append('is_active','on');
+    groupsDiv.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      if (cb.checked) formData.append('groups', cb.value);
+    });
+
+    const resp = await fetch(`/painel-admin/usuarios/${uid}/update/`, {
+      method:'POST',
+      headers:{ 'X-CSRFToken': csrftoken },
+      body: formData
+    });
+    const data = await resp.json();
+    if (data.success) {
+      location.reload();
+    } else {
+      feedback.textContent = data.error || 'Erro ao salvar';
+    }
+  };
+
+  // DELETE
+  document.querySelectorAll('.btn-delete-user').forEach(btn => {
+    btn.onclick = async () => {
+      const uid = btn.dataset.userId;
+      if (!confirm('Confirma exclusão deste usuário?')) return;
+      const resp = await fetch(`/painel-admin/usuarios/${uid}/delete/`, {
+        method:'POST', headers:{ 'X-CSRFToken': csrftoken }
+      });
+      const data = await resp.json();
+      if (data.success) location.reload();
+      else alert(data.error||'Erro ao excluir');
+    };
+  });
+
+  // RESET PASSWORD
+  document.querySelectorAll('.btn-reset-pw').forEach(btn => {
+    btn.onclick = async () => {
+      const uid = btn.dataset.userId;
+      if (!confirm('Resetar senha e mostrar ao admin?')) return;
+      const resp = await fetch(`/painel-admin/usuarios/${uid}/reset-password/`, {
+        method:'POST', headers:{ 'X-CSRFToken': csrftoken }
+      });
+      const data = await resp.json();
+      if (data.success) alert('Nova senha: ' + data.new_password);
+      else alert(data.error||'Erro ao resetar');
+    };
+  });
+
+});
+</script>
+{% endblock %}
+```

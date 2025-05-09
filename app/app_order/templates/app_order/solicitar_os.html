@@ -8,16 +8,24 @@
       <i class="bi bi-pencil-square me-2"></i>Solicitar Ordem de Serviço
     </h3>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-
     <div class="card shadow-sm">
       <div class="card-body">
+
+        {# Aviso de bloqueio dentro do card #}
+        {% if os_pendentes %}
+          <div class="alert alert-warning mb-4">
+            Você já tem {{ os_pendentes }} OS aguardando aprovação. Aguarde antes de solicitar outra.
+          </div>
+        {% elif etapas_ativas >= 2 %}
+          <div class="alert alert-warning mb-4">
+            Você tem {{ etapas_ativas }} serviço{{ etapas_ativas|pluralize:"s" }} em execução. 
+            Finalize {% if etapas_ativas > 1 %}todos{% else %}um{% endif %} antes de continuar.
+          </div>
+        {% endif %}
+
         <form method="post" novalidate>
           {% csrf_token %}
+
           {% for field in form %}
             <div class="mb-3">
               <label class="form-label">{{ field.label }}</label>
@@ -30,10 +38,16 @@
               {% endfor %}
             </div>
           {% endfor %}
-          <button type="submit" class="btn btn-primary">
+
+          <button
+            type="submit"
+            class="btn {% if os_pendentes or etapas_ativas >= 2 %}btn-secondary{% else %}btn-primary{% endif %}"
+            {% if os_pendentes or etapas_ativas >= 2 %}disabled{% endif %}
+          >
             <i class="bi bi-send-check me-1"></i>Enviar solicitação
           </button>
         </form>
+
       </div>
     </div>
   </div>

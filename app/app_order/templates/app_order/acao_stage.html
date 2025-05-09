@@ -34,7 +34,7 @@
       {{ form.finalizar_os.errors }}
     </div>
 
-    <button type="submit" class="btn btn-success">Enviar</button>
+    <button type="submit" class="btn btn-success" disabled>Enviar</button>
     <a href="{% url 'listar_os_funcionario' %}" class="btn btn-secondary">Voltar</a>
   </form>
 </div>
@@ -43,19 +43,38 @@
 document.addEventListener('DOMContentLoaded', function() {
   const repassarField = document.getElementById('id_repassar_para');
   const finalizarField = document.getElementById('id_finalizar_os');
+  const fotoField      = document.getElementById('id_foto');
+  const submitBtn      = document.querySelector('button[type="submit"]');
+
+  // tornar foto obrigatória no frontend
+  fotoField.required = true;
 
   function syncFinalizar() {
     if (repassarField.value) {
-      finalizarField.checked = false;
+      finalizarField.checked  = false;
       finalizarField.disabled = true;
     } else {
       finalizarField.disabled = false;
     }
   }
 
-  repassarField.addEventListener('change', syncFinalizar);
-  // aplica ao carregar a página
+  function syncSubmit() {
+    const hasFoto = fotoField.files && fotoField.files.length > 0;
+    const flowOk  = repassarField.value || finalizarField.checked;
+    submitBtn.disabled = !(hasFoto && flowOk);
+  }
+
+  // escutar mudanças
+  repassarField.addEventListener('change', function() {
+    syncFinalizar();
+    syncSubmit();
+  });
+  finalizarField.addEventListener('change', syncSubmit);
+  fotoField.addEventListener('change', syncSubmit);
+
+  // estado inicial
   syncFinalizar();
+  syncSubmit();
 });
 </script>
 {% endblock %}

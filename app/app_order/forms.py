@@ -88,8 +88,8 @@ class StageActionForm(forms.Form):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
     )
     foto = forms.ImageField(
-        label="Foto (opcional)",
-        required=False,
+        label="Foto (obrigatória)",
+        required=True,  # agora é obrigatório
         widget=forms.ClearableFileInput(attrs={"class": "form-control"}),
     )
     repassar_para = forms.ModelChoiceField(
@@ -121,17 +121,14 @@ class StageActionForm(forms.Form):
                 "Não é possível repassar e finalizar a OS ao mesmo tempo."
             )
 
-        # ❌ pelo menos uma ação deve ser escolhida
-        if not any(
-            [
-                data.get("comentario"),
-                data.get("foto"),
-                data.get("repassar_para"),
-                data.get("finalizar_os"),
-            ]
-        ):
+        # ❌ foto obrigatória
+        if not data.get("foto"):
+            raise ValidationError("É obrigatório enviar uma foto para esta etapa.")
+
+        # ❌ exigir repassar OU finalizar
+        if not data.get("repassar_para") and not data.get("finalizar_os"):
             raise ValidationError(
-                "Selecione ao menos uma ação: comentário, foto, repasse ou finalizar OS."
+                "Você deve repassar a OS para outro técnico ou marcar “Finalizar OS”."
             )
 
         return data

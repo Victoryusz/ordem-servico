@@ -114,6 +114,14 @@ class StageActionForm(forms.Form):
 
     def clean(self):
         data = super().clean()
+
+        # ❌ não permitir repassar E finalizar ao mesmo tempo
+        if data.get("repassar_para") and data.get("finalizar_os"):
+            raise ValidationError(
+                "Não é possível repassar e finalizar a OS ao mesmo tempo."
+            )
+
+        # ❌ pelo menos uma ação deve ser escolhida
         if not any(
             [
                 data.get("comentario"),
@@ -125,4 +133,5 @@ class StageActionForm(forms.Form):
             raise ValidationError(
                 "Selecione ao menos uma ação: comentário, foto, repasse ou finalizar OS."
             )
+
         return data

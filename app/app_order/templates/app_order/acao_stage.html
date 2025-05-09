@@ -38,4 +38,24 @@
     <a href="{% url 'listar_os_funcionario' %}" class="btn btn-secondary">Voltar</a>
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const repassarField = document.getElementById('id_repassar_para');
+  const finalizarField = document.getElementById('id_finalizar_os');
+
+  function syncFinalizar() {
+    if (repassarField.value) {
+      finalizarField.checked = false;
+      finalizarField.disabled = true;
+    } else {
+      finalizarField.disabled = false;
+    }
+  }
+
+  repassarField.addEventListener('change', syncFinalizar);
+  // aplica ao carregar a página
+  syncFinalizar();
+});
+</script>
 {% endblock %}

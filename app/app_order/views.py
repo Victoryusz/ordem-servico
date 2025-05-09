@@ -447,12 +447,15 @@ def acao_stage(request, stage_id):
 @login_required(login_url="login")
 @require_GET
 def verificar_numero_os(request, pk):
-    """API: retorna o numero_os de uma OS (ou null)."""
-    try:
-        ordem = OrdemServico.objects.get(pk=pk, usuario=request.user)
-        return JsonResponse({"numero_os": ordem.numero_os})
-    except OrdemServico.DoesNotExist:
-        return JsonResponse({"numero_os": None})
+    """
+    API: retorna numero_os e status de uma OS,
+    ou nulls caso não exista ou não pertença ao user.
+    """
+    ordem = get_object_or_404(OrdemServico, pk=pk, usuario=request.user)
+    return JsonResponse({
+        "numero_os": ordem.numero_os or None,
+        "status":    ordem.status,
+    })
 
 
 @login_required(login_url="login")

@@ -1,28 +1,70 @@
 {% extends "app_order/base.html" %}
 {% load static %}
-{% block title %}Solicitação Enviada{% endblock %}
+{% block title %}Ordem solicitada{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
-  <div class="text-center">
-    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-    <h3 class="mt-3">Solicitação enviada com sucesso!</h3>
+  <div class="card p-4 shadow" style="max-width: 600px; border-radius: 1rem;">
+    <!-- Ícone e cabeçalho -->
+    <div class="text-center">
+      <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #6f42c1;"></i>
+      <h2 class="mt-3">Ordem solicitada</h2>
+      <p class="text-muted">
+        OS solicitada com sucesso; após ser aprovada, o número será atribuído.
+      </p>
+    </div>
 
-    <p class="lead mt-2">
-      <strong>Número da OS:</strong>
-      <span id="numero-os" data-pk="{{ ordem_servico.pk }}">
-        {{ ordem_servico.numero_os|default:"Aguardando aprovação..." }}
-      </span>
-    </p>
+    <!-- STATUS e NÚMERO (wrapper estreito e centralizado) -->
+    <div class="mx-auto mb-4" style="max-width: 380px;">
+      <div class="bg-light p-3 rounded">
+        <div class="row g-0 justify-content-center">
+          <!-- Status -->
+          <div class="col-auto text-center border-end pe-3">
+            <h6 class="fw-bold">Status</h6>
+            <span
+              id="status-os"
+              class="badge bg-warning text-dark d-inline-flex align-items-center"
+            >
+              Aguardando…
+              <span
+                class="spinner-border spinner-border-sm text-dark ms-2"
+                role="status"
+              >
+                <span class="visually-hidden">Carregando…</span>
+              </span>
+            </span>
+          </div>
+          <!-- Número OS -->
+          <div class="col-auto text-center ps-3">
+            <h6 class="fw-bold">Número OS</h6>
+            <span id="numero-os" data-pk="{{ ordem_servico.pk }}">
+              {{ ordem_servico.numero_os|default:"XXXXX" }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <a href="{% url 'listar_os_funcionario' %}" class="btn btn-outline-primary mt-4">
-      Ver minhas Ordens de Serviço
-    </a>
+    <!-- Botões de ação -->
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+      <a
+        href="{% url 'listar_os_funcionario' %}"
+        class="btn btn-outline-secondary w-100 w-md-auto"
+      >
+        Histórico de Ordens
+      </a>
+      <a
+        href="{% url 'solicitar_os' %}"
+        class="btn btn-primary w-100 w-md-auto"
+      >
+        Ir para início
+      </a>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- 🔁 Script para verificar se a OS foi aprovada -->
-<script src="{% static 'app_order/js/os_sucesso_auto_reload.js' %}"></script>
+  <!-- versão de cache busting: v1 -->
+  <script src="{% static 'app_order/js/os_sucesso_auto_reload.js' %}?v=1"></script>
 {% endblock %}

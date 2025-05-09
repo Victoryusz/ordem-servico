@@ -13,9 +13,11 @@
       <div class="card p-4 shadow-sm">
         <h4 class="mb-4 text-center">Acessar o sistema</h4>
 
-        {% if messages %} {% for message in messages %}
-        <div class="alert alert-danger">{{ message }}</div>
-        {% endfor %} {% endif %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-danger">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
 
         <form method="post">
           {% csrf_token %}
@@ -44,6 +46,14 @@
 
           <button type="submit" class="btn btn-primary w-100">Entrar</button>
         </form>
+
+        <!-- Link para cadastro de novo usuário -->
+        <div class="text-center mt-3">
+          <p class="mb-1">Não possui conta?</p>
+          <a href="{% url 'register' %}" class="btn btn-link p-0">
+            Cadastre-se aqui
+          </a>
+        </div>
       </div>
     </div>
   </body>

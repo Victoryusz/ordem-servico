@@ -8,19 +8,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0007_alter_stage_order'),
+        ("app_order", "0007_alter_stage_order"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='stage',
-            name='order',
-            field=models.ForeignKey(blank=True, help_text='Ordem de Serviço (fica vazio se a OS for excluída).', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='stages', to='app_order.ordemservico'),
+            model_name="stage",
+            name="order",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Ordem de Serviço (fica vazio se a OS for excluída).",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="stages",
+                to="app_order.ordemservico",
+            ),
         ),
         migrations.AlterField(
-            model_name='stage',
-            name='tecnico',
-            field=models.ForeignKey(blank=True, help_text='Técnico responsável (fica vazio se excluído).', null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL),
+            model_name="stage",
+            name="tecnico",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Técnico responsável (fica vazio se excluído).",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

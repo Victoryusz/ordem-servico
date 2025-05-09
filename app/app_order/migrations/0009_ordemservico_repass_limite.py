@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0008_alter_stage_order_alter_stage_tecnico'),
+        ("app_order", "0008_alter_stage_order_alter_stage_tecnico"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ordemservico',
-            name='repass_limite',
-            field=models.PositiveIntegerField(default=5, help_text='Máximo de repasses antes de solicitar liberação pelo admin.'),
+            model_name="ordemservico",
+            name="repass_limite",
+            field=models.PositiveIntegerField(
+                default=5,
+                help_text="Máximo de repasses antes de solicitar liberação pelo admin.",
+            ),
         ),
     ]

@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0006_alter_stage_tecnico'),
+        ("app_order", "0006_alter_stage_tecnico"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='stage',
-            name='order',
-            field=models.ForeignKey(blank=True, help_text='Ordem de Serviço à qual esta etapa pertence (fica vazio se a OS for excluída).', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='stages', to='app_order.ordemservico'),
+            model_name="stage",
+            name="order",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Ordem de Serviço à qual esta etapa pertence (fica vazio se a OS for excluída).",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="stages",
+                to="app_order.ordemservico",
+            ),
         ),
     ]

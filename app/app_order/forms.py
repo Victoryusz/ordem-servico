@@ -10,6 +10,7 @@ class OrdemServicoForm(forms.ModelForm):
     """
     Form para colaborador solicitar OS.
     """
+
     class Meta:
         model = OrdemServico
         fields = ["nome_cliente", "gmg", "descricao"]
@@ -42,6 +43,7 @@ class RegistroUsuarioForm(forms.ModelForm):
     """
     Form para registrar usuário com confirmação de senha.
     """
+
     password = forms.CharField(
         label="Senha",
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
@@ -74,48 +76,52 @@ class RegistroUsuarioForm(forms.ModelForm):
             user.save()
         return user
 
+
 class StageActionForm(forms.Form):
     """
     Form para ações na etapa: concluir, repassar ou finalizar OS.
     """
+
     comentario = forms.CharField(
         label="Comentário",
         required=False,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3})
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
     )
     foto = forms.ImageField(
         label="Foto (opcional)",
         required=False,
-        widget=forms.ClearableFileInput(attrs={"class": "form-control"})
+        widget=forms.ClearableFileInput(attrs={"class": "form-control"}),
     )
     repassar_para = forms.ModelChoiceField(
         label="Repassar para",
         required=False,
         queryset=User.objects.none(),  # queryset configurado no __init__
         help_text="Escolha outro técnico (opcional).",
-        widget=forms.Select(attrs={"class": "form-control"})
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     finalizar_os = forms.BooleanField(
         label="Finalizar OS",
         required=False,
-        help_text="Marcar OS como encerrada após esta etapa."
+        help_text="Marcar OS como encerrada após esta etapa.",
     )
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if user:
-            self.fields['repassar_para'].queryset = (
-                User.objects.filter(groups__name="Funcionario").exclude(pk=user.pk)
-            )
+            self.fields["repassar_para"].queryset = User.objects.filter(
+                groups__name="Funcionario"
+            ).exclude(pk=user.pk)
 
     def clean(self):
         data = super().clean()
-        if not any([
-            data.get("comentario"),
-            data.get("foto"),
-            data.get("repassar_para"),
-            data.get("finalizar_os")
-        ]):
+        if not any(
+            [
+                data.get("comentario"),
+                data.get("foto"),
+                data.get("repassar_para"),
+                data.get("finalizar_os"),
+            ]
+        ):
             raise ValidationError(
                 "Selecione ao menos uma ação: comentário, foto, repasse ou finalizar OS."
             )

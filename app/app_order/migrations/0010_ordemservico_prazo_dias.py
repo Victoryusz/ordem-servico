@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0009_ordemservico_repass_limite'),
+        ("app_order", "0009_ordemservico_repass_limite"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ordemservico',
-            name='prazo_dias',
-            field=models.PositiveIntegerField(default=5, help_text='Prazo máximo (em dias) para conclusão desta OS.'),
+            model_name="ordemservico",
+            name="prazo_dias",
+            field=models.PositiveIntegerField(
+                default=5, help_text="Prazo máximo (em dias) para conclusão desta OS."
+            ),
         ),
     ]

@@ -7,6 +7,7 @@ class OrdemServico(models.Model):
     """
     Modelo que representa uma Ordem de Serviço solicitada por um colaborador.
     """
+
     STATUS_CHOICES = [
         ("aguardando", "Aguardando aprovação"),
         ("em_andamento", "Em andamento"),
@@ -18,53 +19,47 @@ class OrdemServico(models.Model):
         on_delete=models.CASCADE,
         related_name="ordens_servico",
         help_text="Funcionário que abriu esta OS.",
-        null=True
+        null=True,
     )
     imagem_conclusao = models.ImageField(
-        upload_to='os_concluidas/',
+        upload_to="os_concluidas/",
         blank=True,
         null=True,
-        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png'])],
-        help_text="Imagem do serviço concluído."
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png"])],
+        help_text="Imagem do serviço concluído.",
     )
     comentario_conclusao = models.TextField(
         blank=True,
         null=True,
-        help_text="Comentário final do funcionário sobre a conclusão do serviço."
+        help_text="Comentário final do funcionário sobre a conclusão do serviço.",
     )
     nome_cliente = models.CharField(
-        max_length=100,
-        help_text="Nome do técnico que solicitou."
+        max_length=100, help_text="Nome do técnico que solicitou."
     )
     gmg = models.CharField(
-        max_length=50,
-        verbose_name="GMG",
-        help_text="Identificação do Gerador."
+        max_length=50, verbose_name="GMG", help_text="Identificação do Gerador."
     )
-    descricao = models.TextField(
-        help_text="Descrição do serviço."
-    )
+    descricao = models.TextField(help_text="Descrição do serviço.")
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="aguardando",
-        help_text="Status atual da OS: aguardando, em andamento ou concluída."
+        help_text="Status atual da OS: aguardando, em andamento ou concluída.",
     )
     numero_os = models.CharField(
         max_length=20,
         blank=True,
         null=True,
-        help_text="Número da OS gerado pelo administrador (preenchido manualmente)."
+        help_text="Número da OS gerado pelo administrador (preenchido manualmente).",
     )
     data_solicitacao = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Data e hora da criação da solicitação."
+        auto_now_add=True, help_text="Data e hora da criação da solicitação."
     )
 
     # ← Aqui adicionamos o limite de repasses antes de precisar de liberação
     repass_limite = models.PositiveIntegerField(
         default=5,
-        help_text="Máximo de repasses antes de solicitar liberação pelo admin."
+        help_text="Máximo de repasses antes de solicitar liberação pelo admin.",
     )
 
     def save(self, *args, **kwargs):
@@ -84,52 +79,51 @@ class Stage(models.Model):
     """
     Modelo que representa uma etapa de uma OS, atribuída a um técnico.
     """
+
     order = models.ForeignKey(
         OrdemServico,
-        related_name='stages',
-        on_delete=models.SET_NULL,   # ⬅️ Deixa NULL se a OS for excluída
+        related_name="stages",
+        on_delete=models.SET_NULL,  # ⬅️ Deixa NULL se a OS for excluída
         null=True,
         blank=True,
-        help_text="Ordem de Serviço (fica vazio se a OS for excluída)."
+        help_text="Ordem de Serviço (fica vazio se a OS for excluída).",
     )
     tecnico = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,   # ⬅️ Deixa NULL se o técnico for excluído
+        on_delete=models.SET_NULL,  # ⬅️ Deixa NULL se o técnico for excluído
         null=True,
         blank=True,
-        help_text="Técnico responsável (fica vazio se excluído)."
+        help_text="Técnico responsável (fica vazio se excluído).",
     )
     ordem = models.PositiveIntegerField(
         help_text="Sequência da etapa dentro da OS (ex: 1, 2, 3)."
     )
     STATUS_CHOICES = [
-        ('em_execucao', 'Em execução'),
-        ('concluida', 'Concluída'),
+        ("em_execucao", "Em execução"),
+        ("concluida", "Concluída"),
     ]
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default='em_execucao',
-        help_text="Status da etapa: em execução ou concluída."
+        default="em_execucao",
+        help_text="Status da etapa: em execução ou concluída.",
     )
     comentario = models.TextField(
-        blank=True,
-        help_text="Comentário do técnico ao concluir a etapa."
+        blank=True, help_text="Comentário do técnico ao concluir a etapa."
     )
     foto = models.ImageField(
-        upload_to='stages/',
+        upload_to="stages/",
         blank=True,
         null=True,
-        help_text="Foto anexada pelo técnico ao concluir a etapa."
+        help_text="Foto anexada pelo técnico ao concluir a etapa.",
     )
     criado_em = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Data e hora de criação da etapa."
+        auto_now_add=True, help_text="Data e hora de criação da etapa."
     )
 
     class Meta:
-        unique_together = ('order', 'ordem')
-        ordering = ['order', 'ordem']
+        unique_together = ("order", "ordem")
+        ordering = ["order", "ordem"]
 
     def __str__(self):
         numero = self.order.numero_os or "—"

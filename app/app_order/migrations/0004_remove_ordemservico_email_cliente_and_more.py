@@ -6,27 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0003_ordemservico_comentario_conclusao_and_more'),
+        ("app_order", "0003_ordemservico_comentario_conclusao_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='ordemservico',
-            name='email_cliente',
+            model_name="ordemservico",
+            name="email_cliente",
         ),
         migrations.AlterField(
-            model_name='ordemservico',
-            name='descricao',
+            model_name="ordemservico",
+            name="descricao",
             field=models.TextField(),
         ),
         migrations.AlterField(
-            model_name='ordemservico',
-            name='gmg',
-            field=models.CharField(help_text='Identificação do Gerador.', max_length=50, verbose_name='GMG'),
+            model_name="ordemservico",
+            name="gmg",
+            field=models.CharField(
+                help_text="Identificação do Gerador.", max_length=50, verbose_name="GMG"
+            ),
         ),
         migrations.AlterField(
-            model_name='ordemservico',
-            name='nome_cliente',
+            model_name="ordemservico",
+            name="nome_cliente",
             field=models.CharField(max_length=100),
         ),
     ]

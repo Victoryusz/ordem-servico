@@ -13,11 +13,12 @@ class OrdemServicoForm(forms.ModelForm):
 
     class Meta:
         model = OrdemServico
-        fields = ["nome_cliente", "gmg", "descricao"]
+        fields = ["nome_cliente", "gmg", "descricao", "prazo_estipulado"]
         labels = {
             "nome_cliente": "Nome do Técnico",
             "gmg": "GMG do Gerador",
             "descricao": "Tipo de serviço a ser executado",
+            "prazo_estipulado": "Prazo para conclusão",
         }
         widgets = {
             "nome_cliente": forms.TextInput(
@@ -34,6 +35,13 @@ class OrdemServicoForm(forms.ModelForm):
                         "Descreva o serviço ex: Montagem do motor, revisão, "
                         "troca de filtros, limpeza..."
                     ),
+                }
+            ),
+            "prazo_estipulado": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                    "placeholder": "Data de conclusão",
                 }
             ),
         }
@@ -105,7 +113,18 @@ class StageActionForm(forms.Form):
     """
     Form para ações na etapa: concluir, repassar ou finalizar OS.
     """
-
+    # Alterando o prazo para conclusão
+    prazo_estipulado = forms.DateField(
+        label="Novo prazo para conclusão",
+        required=False,
+        widget=forms.DateInput(
+            attrs={
+                "class": "form-control",
+                "type": "date",
+            }
+        ),
+        help_text="Ajuste aqui a data limite de conclusão. (SOMENTE SE NECESSÁRIO)",
+)
     comentario = forms.CharField(
         label="Tipo de serviço que você executou",
         required=False,

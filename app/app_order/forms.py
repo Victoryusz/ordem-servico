@@ -41,24 +41,46 @@ class OrdemServicoForm(forms.ModelForm):
 
 class RegistroUsuarioForm(forms.ModelForm):
     """
-    Form para registrar usuário com confirmação de senha.
+    Form para registrar usuário com confirmação de senha e aceite de termos.
     """
-
+    nome = forms.CharField(
+        label="Nome completo",
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Seu nome completo"
+        }),
+    )
     password = forms.CharField(
         label="Senha",
-        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Digite sua senha"
+        }),
     )
     confirm_password = forms.CharField(
         label="Confirmar senha",
-        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Confirme sua senha"
+        }),
+    )
+    terms = forms.BooleanField(
+        label="Estou de acordo com os termos e condições",
+        error_messages={"required": "Você deve aceitar os termos e condições."},
     )
 
     class Meta:
         model = User
         fields = ["username", "email"]
         widgets = {
-            "username": forms.TextInput(attrs={"class": "form-control"}),
-            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "username": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Digite seu usuário"
+            }),
+            "email": forms.EmailInput(attrs={
+                "class": "form-control",
+                "placeholder": "seu-email@exemplo.com"
+            }),
         }
 
     def clean(self):
@@ -71,6 +93,8 @@ class RegistroUsuarioForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        # salva o nome completo em first_name
+        user.first_name = self.cleaned_data.get("nome", "")
         user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()

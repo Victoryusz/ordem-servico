@@ -2,31 +2,89 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Cadastro de Usuário</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Cadastro — JumaOS</title>
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <style>
+      body { background-color: #f0f4ff; }
+      .logo-header { padding: 1rem; }
+      .card-wrapper { max-width: 500px; width: 100%; }
+      .footer-credit { padding: 1rem 0; font-size: 0.85rem; }
+    </style>
   </head>
-  <body class="bg-light">
-    <div class="container mt-5" style="max-width: 500px">
-      <div class="card p-4 shadow-sm">
-        <h4 class="mb-4 text-center">Criar uma nova conta</h4>
+  <body>
+    <div class="d-flex flex-column min-vh-100 align-items-center justify-content-center px-3">
+      <!-- Logo/header fora do card -->
+      <div class="logo-header d-flex justify-content-center align-items-center">
+        <i class="bi bi-rocket-takeoff-fill fs-1" style="color:#0b2545;"></i>
+        <span class="h4 ms-2 mb-0 fw-bold" style="color:#0b2545;" style="letter-spacing:1px;">JUMA OS</span>
+      </div>
 
-        <!-- Formulário de cadastro -->
-        <form method="post">
-          {% csrf_token %} {{ form.as_p }}
+      <!-- Card de cadastro -->
+      <div class="card shadow-sm card-wrapper">
+        <div class="card-body p-4">
+          <h4 class="text-center mb-2 fw-bold" style="color:#0b2545; letter-spacing:0.5px;">Criar conta</h4>
+          <p class="text-center text-muted mb-4">Digite seus dados para criar uma nova conta</p>
 
-          <button type="submit" class="btn btn-success w-100 mt-3">
-            Cadastrar e entrar
-          </button>
-        </form>
+          <!-- Formulário de cadastro -->
+          <form method="post" novalidate enctype="multipart/form-data">
+            {% csrf_token %}
 
-        <!-- Link para login se já tiver conta -->
-        <div class="text-center mt-3">
-          <a href="{% url 'login' %}">Já tem conta? Faça login</a>
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome</label>
+              <input type="text" id="nome" name="nome" class="form-control form-control-lg" placeholder="Seu nome completo" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input type="email" id="email" name="email" class="form-control form-control-lg" placeholder="seu@exemplo.com" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Usuário</label>
+              <div class="input-group input-group-lg">
+                <span class="input-group-text" id="addon-reg">@</span>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Digite seu usuário" aria-describedby="addon-reg" required />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="password1" class="form-label">Senha</label>
+              <input type="password" id="password1" name="password1" class="form-control form-control-lg" placeholder="Digite sua senha" required />
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" id="terms" name="terms" class="form-check-input" required />
+              <label for="terms" class="form-check-label">Estou de acordo com os <a href="#">termos e condições</a></label>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100">Cadastrar e entrar</button>
+          </form>
+
+          <!-- Link para login -->
+          <div class="text-center mt-4">
+            <small>Já tem uma conta?</small>
+            <a href="{% url 'login' %}" class="fw-medium ms-1">Faça login</a>
+          </div>
         </div>
       </div>
+
+      <!-- Footer credit -->
+      <div class="footer-credit text-center">
+        Desenvolvidor por <a href="https://github.com/Victoryusz" target="_blank">Victor Hugo</a>
+      </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

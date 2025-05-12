@@ -16,14 +16,17 @@
               <button
                 class="btn btn-sm btn-info btn-detalhes-os"
                 data-os-id="{{ st.order.id }}"
+                data-os-numero="{{ st.order.numero_os|default:'—' }}"
               >Ver Detalhes</button>
             {% else %}
-              <a href="{% url 'acao_stage' stage_id=st.id %}" class="btn btn-sm btn-primary">
+              <a href="{% url 'acao_stage' stage_id=st.id %}"
+                 class="btn btn-sm btn-primary">
                 Gerenciar Serviço
               </a>
               <button
                 class="btn btn-sm btn-info btn-detalhes-os"
                 data-os-id="{{ st.order.id }}"
+                data-os-numero="{{ st.order.numero_os|default:'—' }}"
               >Ver Detalhes</button>
             {% endif %}
           </div>
@@ -62,6 +65,7 @@
                 <button
                   class="btn btn-sm btn-info btn-detalhes-os"
                   data-os-id="{{ os.id }}"
+                  data-os-numero="{{ os.numero_os|default:'—' }}"
                 >Ver Detalhes</button>
               </td>
             </tr>
@@ -99,6 +103,7 @@
                 <button
                   class="btn btn-sm btn-info btn-detalhes-os"
                   data-os-id="{{ os.id }}"
+                  data-os-numero="{{ os.numero_os|default:'—' }}"
                 >Ver Detalhes</button>
               </td>
             </tr>
@@ -118,7 +123,9 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Linha do Tempo da OS</h5>
+        <h5 class="modal-title">
+          Historico - nº <span id="modalNumeroOS">—</span>
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -133,12 +140,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   const modalEl = document.getElementById('modalDetalhesOS');
-  const modal = new bootstrap.Modal(modalEl);
-  const body = modalEl.querySelector('#conteudo-timeline');
+  const modal   = new bootstrap.Modal(modalEl);
+  const body    = modalEl.querySelector('#conteudo-timeline');
+  const titulo  = modalEl.querySelector('#modalNumeroOS');
 
   document.querySelectorAll('.btn-detalhes-os').forEach(btn => {
     btn.addEventListener('click', () => {
-      const osId = btn.getAttribute('data-os-id');
+      const osId     = btn.getAttribute('data-os-id');
+      const numeroOs = btn.getAttribute('data-os-numero');
+      // Atualiza o número no título do modal
+      titulo.textContent = numeroOs;
+
       fetch(`/detalhes-os/${osId}/`)
         .then(response => {
           if (!response.ok) throw new Error('Falha ao carregar detalhes');

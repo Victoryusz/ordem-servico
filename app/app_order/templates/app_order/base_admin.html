@@ -24,11 +24,13 @@
         min-height: 100vh;
         background-color: #f8f9fa;
       }
+
       main {
         flex: 1;
         padding-top: 80px;
         padding-bottom: 40px;
       }
+
       footer {
         background-color: #212529;
         color: #fff;
@@ -37,16 +39,52 @@
         padding: 1rem 0;
         margin-top: auto;
       }
+
+      footer .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0;
+      }
+
+      @media (min-width: 768px) {
+        footer .container {
+          flex-direction: row;
+          justify-content: center;
+        }
+      }
+
+      footer .text-muted {
+        color: #adb5bd !important;
+      }
+
+      footer .nav-link {
+        color: #adb5bd;
+        font-size: 0.9rem;
+        padding: 0 0.5rem;
+        display: flex;
+        align-items: center;
+        transition: color 0.2s;
+      }
+
+      footer .nav-link:hover {
+        color: #fff;
+      }
+
+      footer .separator {
+        color: #adb5bd;
+      }
+
       .navbar-brand {
         font-size: 1rem;
       }
+
       .navbar-brand i {
         font-size: 1.5rem;
       }
-      .nav-link.active {
-        font-weight: 600;
-        color: #fff !important;
-      }
+
+      /* mantém destaque padrão do Bootstrap para links ativos */
     </style>
 
     {% block extra_styles %}{% endblock %}
@@ -56,13 +94,10 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
       <div class="container-fluid">
-        <a
-          class="navbar-brand d-flex align-items-center gap-2"
-          href="{% url 'painel_admin' %}"
-        >
-          <i class="bi bi-tools fs-4"></i>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'painel_admin' %}">
+          <i class="bi bi-tools me-1"></i>
           <div class="d-flex flex-column lh-sm">
-            <span class="fw-semibold">Juma OS</span>
+            <span class="fw-semibold">Juma OS Admin</span>
             <small class="text-white-50">Administração</small>
           </div>
         </a>
@@ -77,34 +112,22 @@
         <div class="collapse navbar-collapse" id="navbarAdmin">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a
-                class="nav-link {% if request.resolver_match.url_name == 'painel_admin' %}active{% endif %}"
-                href="{% url 'painel_admin' %}"
-              >
+              <a class="nav-link {% if request.resolver_match.url_name == 'painel_admin' %}active{% endif %}" href="{% url 'painel_admin' %}">
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
               </a>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link {% if request.resolver_match.url_name == 'admin_user_list' %}active{% endif %}"
-                href="{% url 'admin_user_list' %}"
-              >
+              <a class="nav-link {% if request.resolver_match.url_name == 'admin_user_list' %}active{% endif %}" href="{% url 'admin_user_list' %}">
                 <i class="bi bi-people me-1"></i>Usuários
               </a>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link"
-                href="{% url 'admin:index' %}"
-              >
+              <a class="nav-link {% if request.resolver_match.namespace == 'admin' or request.resolver_match.url_name == 'admin:index' %}active{% endif %}" href="{% url 'admin:index' %}">
                 <i class="bi bi-gear-fill me-1"></i>Django Admin
               </a>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link text-danger"
-                href="{% url 'logout' %}"
-              >
+              <a class="nav-link text-danger" href="{% url 'logout' %}">
                 <i class="bi bi-box-arrow-right me-1"></i>Sair
               </a>
             </li>
@@ -115,20 +138,11 @@
 
     <!-- Conteúdo -->
     <main class="container">
-      {# Mensagens de feedback #}
       {% if messages %}
         {% for msg in messages %}
-          <div
-            class="alert alert-{{ msg.tags }} alert-dismissible fade show"
-            role="alert"
-          >
+          <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
             {{ msg }}
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="Fechar"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
           </div>
         {% endfor %}
       {% endif %}
@@ -138,7 +152,18 @@
 
     <!-- Rodapé -->
     <footer>
-      &copy; {{ now|date:"Y" }} Juma OS — Todos os direitos reservados.
+      <div class="container">
+        <small class="text-muted">&copy; {% now "Y" %} Juma OS</small>
+        <nav class="nav">
+          <a class="nav-link" href="{% url 'termos' %}" target="_blank">
+            <i class="bi bi-file-text-fill me-1"></i>Termos &amp; Condições
+          </a>
+          <span class="separator">|</span>
+          <a class="nav-link" href="{% url 'privacy' %}" target="_blank">
+            <i class="bi bi-shield-lock-fill me-1"></i>Política de Privacidade
+          </a>
+        </nav>
+      </div>
     </footer>
 
     <!-- Bootstrap JS -->

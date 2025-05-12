@@ -38,10 +38,43 @@
       footer {
         background-color: #212529;
         color: #fff;
-        text-align: center;
-        font-size: 0.9rem;
-        padding: 1rem 0;
         margin-top: auto;
+      }
+
+      footer .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 0;
+      }
+
+      @media (min-width: 768px) {
+        footer .container {
+          flex-direction: row;
+          justify-content: center;
+        }
+      }
+
+      footer .text-muted {
+        color: #adb5bd !important;
+      }
+
+      footer .nav-link {
+        color: #adb5bd;
+        font-size: 0.9rem;
+        padding: 0 0.5rem;
+        display: flex;
+        align-items: center;
+        transition: color 0.2s;
+      }
+
+      footer .nav-link:hover {
+        color: #fff;
+      }
+
+      footer .separator {
+        color: #adb5bd;
       }
 
       .navbar-brand {
@@ -130,11 +163,34 @@
 
     <!-- Rodapé -->
     <footer>
-      &copy; {{ now|date:"Y" }} Juma OS — Todos os direitos reservados.
+      <div class="container">
+        <small class="text-muted">&copy; {{ now|date:"Y" }} Juma OS</small>
+        <nav class="nav">
+          <a
+            class="nav-link"
+            href="{% url 'termos' %}"
+            target="_blank"
+          >
+            <i class="bi bi-file-text-fill me-1"></i>
+            Termos &amp; Condições
+          </a>
+          <span class="separator">|</span>
+          <a
+            class="nav-link"
+            href="{% url 'privacy' %}"
+            target="_blank"
+          >
+            <i class="bi bi-shield-lock-fill me-1"></i>
+            Política de Privacidade
+          </a>
+        </nav>
+      </div>
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    ></script>
 
     {% block extra_scripts %}{% endblock %}
   </body>

@@ -56,6 +56,12 @@ class OrdemServico(models.Model):
         auto_now_add=True, help_text="Data e hora da criação da solicitação."
     )
 
+    prazo_estipulado = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Data e hora estimada para a conclusão do serviço.",
+    )
+
     # ← Aqui adicionamos o limite de repasses antes de precisar de liberação
     repass_limite = models.PositiveIntegerField(
         default=5,

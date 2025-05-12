@@ -26,18 +26,38 @@
         <form method="post" novalidate>
           {% csrf_token %}
 
+          {# Renderiza todos os campos exceto SLA #}
           {% for field in form %}
-            <div class="mb-3">
-              <label class="form-label">{{ field.label }}</label>
-              {{ field }}
-              {% if field.help_text %}
-                <div class="form-text">{{ field.help_text }}</div>
-              {% endif %}
-              {% for error in field.errors %}
-                <div class="text-danger small">{{ error }}</div>
-              {% endfor %}
-            </div>
+            {% if field.name != 'prazo_estipulado' %}
+              <div class="mb-3">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                  <div class="form-text">{{ field.help_text }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
           {% endfor %}
+
+          {# Campo SLA manualmente inserido #}
+          <div class="mb-3">
+            <label for="id_prazo_estipulado" class="form-label">
+              Prazo
+              <span data-bs-toggle="tooltip" title="Service Level Agreement – data limite para conclusão">
+                <i class="bi bi-info-circle"></i>
+              </span>
+            </label>
+            {{ form.prazo_estipulado }}
+            {% if form.prazo_estipulado.help_text %}
+              <div class="form-text">{{ form.prazo_estipulado.help_text }}</div>
+            {% endif %}
+            {% for error in form.prazo_estipulado.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
 
           <button
             type="submit"

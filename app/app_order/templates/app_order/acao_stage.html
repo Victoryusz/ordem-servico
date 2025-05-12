@@ -8,6 +8,16 @@
     {% csrf_token %}
     {{ form.non_field_errors }}
 
+    <!-- Novo campo de prazo -->
+    <div class="mb-3">
+      {{ form.prazo_estipulado.label_tag }}
+      {{ form.prazo_estipulado }}
+      {% if form.prazo_estipulado.help_text %}
+        <small class="form-text text-muted">{{ form.prazo_estipulado.help_text }}</small>
+      {% endif %}
+      {{ form.prazo_estipulado.errors }}
+    </div>
+
     <div class="mb-3">
       {{ form.comentario.label_tag }}
       {{ form.comentario }}
@@ -41,12 +51,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const repassarField = document.getElementById('id_repassar_para');
+  const prazoField     = document.getElementById('id_prazo_estipulado');
+  const repassarField  = document.getElementById('id_repassar_para');
   const finalizarField = document.getElementById('id_finalizar_os');
   const fotoField      = document.getElementById('id_foto');
   const submitBtn      = document.querySelector('button[type="submit"]');
 
-  // tornar foto obrigatória no frontend
+  // deixa foto obrigatória no frontend
   fotoField.required = true;
 
   function syncFinalizar() {
@@ -59,12 +70,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function syncSubmit() {
-    const hasFoto = fotoField.files && fotoField.files.length > 0;
-    const flowOk  = repassarField.value || finalizarField.checked;
-    submitBtn.disabled = !(hasFoto && flowOk);
+    const hasFoto    = fotoField.files && fotoField.files.length > 0;
+    const flowOk     = repassarField.value || finalizarField.checked;
+    const prazoOnly  = prazoField.value;
+    // se só ajustou o prazo, libera; senão exige foto + fluxo (repassar ou finalizar)
+    if (prazoOnly) {
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = !(hasFoto && flowOk);
+    }
   }
 
   // escutar mudanças
+  prazoField.addEventListener('change', syncSubmit);
   repassarField.addEventListener('change', function() {
     syncFinalizar();
     syncSubmit();

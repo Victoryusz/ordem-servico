@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 from .models import OrdemServico, Stage
 from django.contrib.auth.models import Group
 from django.contrib.auth.hashers import make_password
-
+from django.urls import reverse
 
 from .forms import (
     OrdemServicoForm,
@@ -134,6 +134,35 @@ def login_view(request):
         next_url = request.GET.get("next", "")
     return render(request, "app_order/login.html", {"next": next_url})
 
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username") # nome de usuário
+        password = request.POST.get("password") # senha em texto plano
+        remember = request.POST.get("remember") # "on" ou "off"
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+
+            # expiração de sessão
+            if remember == "on":
+                request.session.set_expiry(1209600)
+            else:
+                request.session.set_expiry(0)
+
+            # redirecionamento condicional
+            if user.is_superuser or user.is_staff:
+                # leva para o admin Django ou um dashboard de admin customizado
+                return redirect(reverse('painel_admin'))
+            else:
+                # usuário normal: next ou dashboard
+                next_url = request.POST.get("next")
+                return redirect(next_url or reverse('painel_funcionario'))
+
+        else:
+            messages.error(request, "Usuário ou senha inválidos.")
+
+    return render(request, "app_order/login.html", {"next": request.GET.get("next", "")})
 
 def register_view(request):
     """Form de registro de novo usuário."""
@@ -481,3 +510,4 @@ def detalhes_os(request, os_id):
     ordem = get_object_or_404(qs, pk=os_id)
     etapas = ordem.stages.all().order_by("ordem", "criado_em")
     return render(request, "app_order/partials/timeline.html", {"etapas": etapas})
+

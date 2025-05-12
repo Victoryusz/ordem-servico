@@ -107,12 +107,16 @@ class StageActionForm(forms.Form):
     """
 
     comentario = forms.CharField(
-        label="Comentário",
+        label="Tipo de serviço que você executou",
         required=False,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        widget=forms.Textarea(attrs={
+            "class": "form-control",
+            "rows": 3,
+            "placeholder": "Descreva aqui o que você fez na OS."
+        }),
     )
     foto = forms.ImageField(
-        label="Foto (obrigatória)",
+        label="Foto do trabalho (obrigatória)",
         required=True,  # agora é obrigatório
         widget=forms.ClearableFileInput(attrs={"class": "form-control"}),
     )
@@ -156,3 +160,4 @@ class StageActionForm(forms.Form):
             )
 
         return data
+

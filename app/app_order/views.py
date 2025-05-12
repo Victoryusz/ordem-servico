@@ -424,6 +424,7 @@ def acao_stage(request, stage_id):
     Concluir/Repasse/Finaliza uma etapa:
       - conclui somente se repasse for permitido
       - respeita order.repass_limite
+      - permite ajuste de prazo
     """
     stage = get_object_or_404(
         Stage, pk=stage_id, tecnico=request.user, status="em_execucao"
@@ -433,7 +434,18 @@ def acao_stage(request, stage_id):
     )
     if form.is_valid():
         ordem = stage.order
+
+        # ——— Ajuste de prazo, se fornecido ———
+        novo_prazo = form.cleaned_data.get("prazo_estipulado")
+        if novo_prazo:
+            ordem.prazo_estipulado = datetime.datetime.combine(
+                novo_prazo, datetime.time.min
+            )
+            ordem.save()
+            messages.info(request, "Prazo atualizado com sucesso.")
+
         total = Stage.objects.filter(order=ordem).count()
+
         # repassar para outro técnico
         novo_tecnico = form.cleaned_data["repassar_para"]
         if novo_tecnico:
@@ -445,7 +457,9 @@ def acao_stage(request, stage_id):
                     stage.foto = form.cleaned_data["foto"]
                 stage.save()
                 # cria próxima etapa
-                Stage.objects.create(order=ordem, tecnico=novo_tecnico, ordem=total + 1)
+                Stage.objects.create(
+                    order=ordem, tecnico=novo_tecnico, ordem=total + 1
+                )
                 messages.success(
                     request,
                     f"Ordem repassada para {novo_tecnico.username} com sucesso.",
@@ -455,6 +469,7 @@ def acao_stage(request, stage_id):
                     request,
                     "Limite de repasses atingido. Entre em contato com o administrador.",
                 )
+
         # finalizar a OS por completo
         elif form.cleaned_data["finalizar_os"]:
             stage.status = "concluida"
@@ -465,7 +480,8 @@ def acao_stage(request, stage_id):
             ordem.status = "concluida"
             ordem.save()
             messages.success(request, "OS finalizada com sucesso!")
-        # somente concluir etapa
+
+        # somente concluir etapa (sem repasse nem fechar OS)
         else:
             stage.status = "concluida"
             stage.comentario = form.cleaned_data["comentario"]
@@ -473,9 +489,14 @@ def acao_stage(request, stage_id):
                 stage.foto = form.cleaned_data["foto"]
             stage.save()
             messages.success(request, "Serviço concluído com sucesso.")
+
         return redirect("listar_os_funcionario")
 
-    return render(request, "app_order/acao_stage.html", {"form": form, "stage": stage})
+    return render(
+        request,
+        "app_order/acao_stage.html",
+        {"form": form, "stage": stage},
+    )
 
 
 # ##########################################################

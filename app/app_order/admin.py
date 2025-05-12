@@ -30,6 +30,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
         "status",
         "numero_os",
         "data_solicitacao",
+        "prazo_estipulado",  # SLA adicionado
         "stage_count",
         "repass_limite",
     )
@@ -37,6 +38,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
         ExceededRepasseFilter,
         "status",
         "data_solicitacao",
+        # você pode adicionar "prazo_estipulado" caso queira filtrar por prazo
     )
     search_fields = (
         "nome_cliente",
@@ -48,6 +50,7 @@ class OrdemServicoAdmin(admin.ModelAdmin):
         "descricao",
         "status",
         "numero_os",
+        "prazo_estipulado",  # SLA no formulário de edição
         "repass_limite",
     )
     actions = ["liberar_repasses"]

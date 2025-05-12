@@ -70,6 +70,8 @@ urlpatterns = [
         views.user_reset_password,
         name="user_reset_password",
     ),
+    path('termos/', views.termos, name='termos'),
+    path('privacidade/', views.privacy, name='privacy'),
 ]
 
 

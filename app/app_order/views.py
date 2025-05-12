@@ -109,7 +109,6 @@ def os_sucesso(request):
 #                AUTENTICAÇÃO DE USUÁRIO
 # ##########################################################
 
-
 def login_view(request):
     """Faz login e redireciona de acordo com perfil ou next_url seguro."""
     if request.method == "POST":
@@ -176,6 +175,17 @@ def register_view(request):
         form = RegistroUsuarioForm()
     return render(request, "app_order/register.html", {"form": form})
 
+def termos(request):
+    """
+    Exibe a página de termos e condições.
+    """
+    return render(request, 'app_order/terms.html')
+
+def privacy(request):
+    """
+    Exibe a página de Politica de privacidade.
+    """
+    return render(request, 'app_order/privacy.html')
 
 def logout_view(request):
     """Limpa mensagens e faz logout."""

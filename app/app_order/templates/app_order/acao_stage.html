@@ -8,15 +8,7 @@
     {% csrf_token %}
     {{ form.non_field_errors }}
 
-    <!-- Novo campo de prazo -->
-    <div class="mb-3">
-      {{ form.prazo_estipulado.label_tag }}
-      {{ form.prazo_estipulado }}
-      {% if form.prazo_estipulado.help_text %}
-        <small class="form-text text-muted">{{ form.prazo_estipulado.help_text }}</small>
-      {% endif %}
-      {{ form.prazo_estipulado.errors }}
-    </div>
+    {# Removido o bloco de prazo daqui, pois a alteração de prazo fica apenas no modal #}
 
     <div class="mb-3">
       {{ form.comentario.label_tag }}
@@ -51,16 +43,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const prazoField     = document.getElementById('id_prazo_estipulado');
   const repassarField  = document.getElementById('id_repassar_para');
   const finalizarField = document.getElementById('id_finalizar_os');
   const fotoField      = document.getElementById('id_foto');
   const submitBtn      = document.querySelector('button[type="submit"]');
 
-  // deixa foto obrigatória no frontend
+  // foto obrigatória no frontend
   fotoField.required = true;
 
   function syncFinalizar() {
+    // se repassar for escolhido, não permite finalizar ao mesmo tempo
     if (repassarField.value) {
       finalizarField.checked  = false;
       finalizarField.disabled = true;
@@ -70,19 +62,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function syncSubmit() {
-    const hasFoto    = fotoField.files && fotoField.files.length > 0;
-    const flowOk     = repassarField.value || finalizarField.checked;
-    const prazoOnly  = prazoField.value;
-    // se só ajustou o prazo, libera; senão exige foto + fluxo (repassar ou finalizar)
-    if (prazoOnly) {
-      submitBtn.disabled = false;
-    } else {
-      submitBtn.disabled = !(hasFoto && flowOk);
-    }
+    const hasFoto = fotoField.files && fotoField.files.length > 0;
+    const flowOk  = repassarField.value || finalizarField.checked;
+    submitBtn.disabled = !(hasFoto && flowOk);
   }
 
   // escutar mudanças
-  prazoField.addEventListener('change', syncSubmit);
   repassarField.addEventListener('change', function() {
     syncFinalizar();
     syncSubmit();

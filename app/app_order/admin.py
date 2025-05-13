@@ -18,19 +18,25 @@ class ExceededRepasseFilter(admin.SimpleListFilter):
         return queryset
 
 
+# Inline para mostrar as etapas diretamente na OS
+class StageInline(admin.TabularInline):
+    model = Stage
+    fields = ("ordem", "tecnico", "status", "prazo_estipulado", "criado_em")
+    readonly_fields = ("criado_em",)
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+
 @admin.register(OrdemServico)
 class OrdemServicoAdmin(admin.ModelAdmin):
-    """
-    Configurações do painel administrativo da Ordem de Serviço.
-    """
-
     list_display = (
         "id",
         "nome_cliente",
         "status",
         "numero_os",
         "data_solicitacao",
-        "prazo_estipulado",  # SLA adicionado
+        "prazo_inicial",
         "stage_count",
         "repass_limite",
     )
@@ -38,34 +44,45 @@ class OrdemServicoAdmin(admin.ModelAdmin):
         ExceededRepasseFilter,
         "status",
         "data_solicitacao",
-        # você pode adicionar "prazo_estipulado" caso queira filtrar por prazo
     )
-    search_fields = (
-        "nome_cliente",
-        "numero_os",
-    )
+    search_fields = ("nome_cliente", "numero_os",)
     fields = (
         "nome_cliente",
         "gmg",
         "descricao",
         "status",
         "numero_os",
-        "prazo_estipulado",  # SLA no formulário de edição
+        "prazo_inicial",
         "repass_limite",
     )
+    inlines = [StageInline]
     actions = ["liberar_repasses"]
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return qs.annotate(stage_count=Count("stages"))
+        return super().get_queryset(request).annotate(stage_count=Count("stages"))
 
     def stage_count(self, obj):
         return obj.stage_count
-
     stage_count.short_description = "Etapas"
 
     def liberar_repasses(self, request, queryset):
         count = queryset.update(repass_limite=F("repass_limite") + 5)
         self.message_user(request, f"{count} OS receberam +5 repasses.")
-
     liberar_repasses.short_description = "Liberar +5 repasses"
+
+
+# Registrar também um admin para Stage, se quiser
+@admin.register(Stage)
+class StageAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "order",
+        "ordem",
+        "tecnico",
+        "status",
+        "prazo_estipulado",
+        "criado_em",
+    )
+    list_filter = ("status", "order__status", "tecnico",)
+    search_fields = ("order__numero_os", "tecnico__username",)
+    readonly_fields = ("criado_em",)

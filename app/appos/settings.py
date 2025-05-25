@@ -7,10 +7,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Carrega SECRET_KEY de variável de ambiente em produção
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-nkvmukq&vmra%6a(^hteai0i)9nh_8w^$i!tj4vqn76q9cy$8#')
 
-# Debug deve ser False em produção; use variável de ambiente para alternar
+# Debug deve ser False em produção; use variável de ambiente
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-# Hosts permitidos para produção
+# Hosts permitidos
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1').split()
 
 # Apps instalados
@@ -21,13 +21,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app_order',  # app principal de ordens de serviço
+    'app_order',
 ]
 
 # Middlewares
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # serve static files em produção
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,7 +49,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'app_order.context_processors.now',  # injeta 'now' nos templates
+                'app_order.context_processors.now',
             ],
         },
     },
@@ -58,7 +57,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'appos.wsgi.application'
 
-# Banco de dados PostgreSQL via variáveis de ambiente
+# Banco de dados via variáveis de ambiente
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -85,14 +84,13 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Arquivos estáticos (CSS, JS, Imagens)
+# Arquivos estáticos
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Mídia (uploads de usuários)
+# Mídia (uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Tipo padrão de campo para chaves primárias
+# Campo padrão de chave primária
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -13,12 +13,12 @@ class OrdemServicoForm(forms.ModelForm):
 
     class Meta:
         model = OrdemServico
-        fields = ["nome_cliente", "gmg", "descricao", "prazo_estipulado"]
+        fields = ["nome_cliente", "gmg", "descricao", "prazo_inicial"]
         labels = {
             "nome_cliente": "Nome do Técnico",
             "gmg": "GMG do Gerador",
             "descricao": "Tipo de serviço a ser executado",
-            "prazo_estipulado": "Prazo para conclusão",
+            "prazo_inicial": "Prazo para conclusão",
         }
         widgets = {
             "nome_cliente": forms.TextInput(
@@ -37,7 +37,7 @@ class OrdemServicoForm(forms.ModelForm):
                     ),
                 }
             ),
-            "prazo_estipulado": forms.DateInput(
+            "prazo_inicial": forms.DateInput(
                 attrs={
                     "class": "form-control",
                     "type": "date",
@@ -111,9 +111,14 @@ class RegistroUsuarioForm(forms.ModelForm):
 
 class StageActionForm(forms.Form):
     """
-    Form para ações na etapa: concluir, repassar ou finalizar OS.
+    Form para ações na etapa: concluir, repassar, finalizar OS ou apenas ajustar prazo.
     """
-    # Alterando o prazo para conclusão
+    ajustar_prazo = forms.BooleanField(
+        label="Atualizar só o prazo",
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        help_text="Marque para apenas alterar o prazo sem concluir nem repassar.",
+    )
     prazo_estipulado = forms.DateField(
         label="Novo prazo para conclusão",
         required=False,
@@ -124,7 +129,7 @@ class StageActionForm(forms.Form):
             }
         ),
         help_text="Ajuste aqui a data limite de conclusão. (SOMENTE SE NECESSÁRIO)",
-)
+    )
     comentario = forms.CharField(
         label="Tipo de serviço que você executou",
         required=False,
@@ -136,13 +141,13 @@ class StageActionForm(forms.Form):
     )
     foto = forms.ImageField(
         label="Foto do trabalho (obrigatória)",
-        required=True,  # agora é obrigatório
+        required=False,
         widget=forms.ClearableFileInput(attrs={"class": "form-control"}),
     )
     repassar_para = forms.ModelChoiceField(
         label="Repassar para",
         required=False,
-        queryset=User.objects.none(),  # queryset configurado no __init__
+        queryset=User.objects.none(),  # será configurado no __init__
         help_text="Escolha outro técnico (opcional).",
         widget=forms.Select(attrs={"class": "form-control"}),
     )
@@ -155,28 +160,29 @@ class StageActionForm(forms.Form):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if user:
-            self.fields["repassar_para"].queryset = User.objects.filter(
-                groups__name="Funcionario"
+            self.fields['repassar_para'].queryset = User.objects.filter(
+                groups__name='Funcionario'
             ).exclude(pk=user.pk)
 
     def clean(self):
         data = super().clean()
 
-        # ❌ não permitir repassar E finalizar ao mesmo tempo
-        if data.get("repassar_para") and data.get("finalizar_os"):
+        # Caso de ajuste puro de prazo
+        if data.get('ajustar_prazo'):
+            if not data.get('prazo_estipulado'):
+                raise ValidationError("Informe a nova data de prazo para concluir a etapa.")
+            # Se só ajustar prazo, não exigimos foto ou repasse/finalização
+            return data
+
+        # Abaixo, fluxo normal: foto obrigatória + repassar OU finalizar
+        if not data.get('foto'):
+            raise ValidationError("É obrigatório enviar uma foto para esta etapa.")
+        if data.get('repassar_para') and data.get('finalizar_os'):
             raise ValidationError(
                 "Não é possível repassar e finalizar a OS ao mesmo tempo."
             )
-
-        # ❌ foto obrigatória
-        if not data.get("foto"):
-            raise ValidationError("É obrigatório enviar uma foto para esta etapa.")
-
-        # ❌ exigir repassar OU finalizar
-        if not data.get("repassar_para") and not data.get("finalizar_os"):
+        if not data.get('repassar_para') and not data.get('finalizar_os'):
             raise ValidationError(
-                "Você deve repassar a OS para outro técnico ou marcar “Finalizar OS”."
+                'Você deve repassar a OS para outro técnico ou marcar “Finalizar OS”.'
             )
-
         return data
-

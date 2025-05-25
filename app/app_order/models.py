@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
+from django.utils import timezone
 
 
 class OrdemServico(models.Model):
@@ -55,25 +56,32 @@ class OrdemServico(models.Model):
     data_solicitacao = models.DateTimeField(
         auto_now_add=True, help_text="Data e hora da criação da solicitação."
     )
-
     prazo_inicial = models.DateTimeField(
         null=True,
         blank=True,
         help_text="Prazo inicial estimado para a conclusão do serviço.",
     )
-
     repass_limite = models.PositiveIntegerField(
         default=5,
         help_text="Máximo de repasses antes de solicitar liberação pelo admin.",
+    )
+    data_conclusao = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Data e hora em que a OS foi marcada como concluída.",
     )
 
     def save(self, *args, **kwargs):
         """
         Se o número da OS for preenchido e o status ainda for 'aguardando',
         atualiza automaticamente o status para 'em andamento'.
+        Também marca data_conclusao quando passar a 'concluida'.
         """
         if self.numero_os and self.status == "aguardando":
             self.status = "em_andamento"
+        # ao concluir, registra timestamp
+        if self.status == "concluida" and not self.data_conclusao:
+            self.data_conclusao = timezone.now()
         super().save(*args, **kwargs)
 
     def __str__(self):

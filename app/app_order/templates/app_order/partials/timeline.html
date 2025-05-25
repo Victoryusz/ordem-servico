@@ -2,38 +2,62 @@
 
 <div class="timeline-stepper">
   {% for st in etapas %}
-    <div class="step mb-3">
-      <button class="btn btn-link w-100 text-start p-2 d-flex align-items-center justify-content-between"
+    <div class="step mb-3 border rounded shadow-sm bg-white">
+      <!-- Cabeçalho da etapa (resumo visível) -->
+      <button class="btn w-100 text-start p-3 d-flex justify-content-between align-items-center"
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#step-{{ st.ordem }}"
               aria-expanded="false"
               aria-controls="step-{{ st.ordem }}">
-        <div class="d-flex align-items-center gap-2">
-          <span class="badge rounded-pill {% if st.status == 'concluida' %}bg-success{% else %}bg-info{% endif %}">
-            {{ st.ordem }}
-          </span>
-          <div>
-            <div><strong>{{ st.get_status_display }}</strong></div>
-            <small class="text-muted">{{ st.criado_em|date:"d/m/Y H:i" }}</small>
+        <div class="d-flex flex-column">
+          <div class="d-flex align-items-center mb-1">
+            <span class="badge rounded-pill me-2
+              {% if st.status == 'concluida' %}
+                bg-success
+              {% elif st.status == 'em_execucao' and st.prazo_estipulado and st.prazo_estipulado < now %}
+                bg-danger
+              {% else %}
+                bg-info
+              {% endif %}
+            ">
+              {{ st.ordem }}
+            </span>
+            <strong class="me-2">
+              {% if st.comentario %}
+                {{ st.comentario|truncatechars:30 }}
+              {% elif st.status == 'em_execucao' %}
+                Em andamento — aguardando preenchimento
+              {% else %}
+                Sem descrição informada
+              {% endif %}
+            </strong>
+            <small class="text-muted">({{ st.get_status_display }})</small>
           </div>
+          <small class="text-muted">
+            <i class="bi bi-person-fill me-1"></i>
+            {{ st.tecnico.get_full_name|default:st.tecnico.username }}
+            &nbsp;•&nbsp;
+            <i class="bi bi-calendar me-1"></i>
+            {{ st.criado_em|date:"d/m/Y H:i" }}
+          </small>
         </div>
-        <i class="bi bi-chevron-down"></i>
+        <i class="bi bi-chevron-down fs-5"></i>
       </button>
 
-      <div id="step-{{ st.ordem }}" class="collapse ps-4">
+      <!-- Conteúdo expandido da etapa -->
+      <div id="step-{{ st.ordem }}" class="collapse border-top p-3 bg-light">
         {% if st.ordem == 1 %}
-          <p class="mb-1">
+          <p class="mb-2">
             <i class="bi bi-info-circle me-1"></i>
             <strong>Serviço:</strong> {{ st.order.descricao }}
           </p>
           {% if st.order.gmg %}
-            <p class="mb-1">
+            <p class="mb-2">
               <i class="bi bi-cpu me-1"></i>
               <strong>GMG:</strong> {{ st.order.gmg }}
             </p>
           {% endif %}
-          {# Nova linha: quem solicitou #}
           <p class="mb-2">
             <i class="bi bi-person-lines-fill me-1"></i>
             <strong>Solicitante:</strong>
@@ -42,30 +66,37 @@
         {% endif %}
 
         {% if st.foto %}
-          <div class="mb-2 text-center">
+          <div class="mb-3 text-center">
             <img
               src="{{ st.foto.url }}"
-              class="img-fluid rounded"
-              style="max-height:120px;"
+              class="img-fluid rounded shadow"
+              style="max-height:150px; max-width:100%; object-fit:contain;"
               alt="Foto da Etapa {{ st.ordem }}"
             >
           </div>
         {% endif %}
 
         {% if st.comentario %}
-          <p class="mb-1">
+          <p class="mb-2">
             <i class="bi bi-chat-left-text me-1"></i>
-            {{ st.comentario }}
+            <strong>Comentário:</strong> {{ st.comentario }}
+          </p>
+        {% elif st.status == 'em_execucao' %}
+          <p class="mb-2 text-muted fst-italic">
+            <i class="bi bi-chat-left-text me-1"></i>
+            Nenhum comentário preenchido até o momento.
           </p>
         {% endif %}
 
-        <p class="text-muted small mb-0">
-          <i class="bi bi-person-fill me-1"></i>
-          {{ st.tecnico.get_full_name|default:st.tecnico.username }}
-          &nbsp;|&nbsp;
-          <i class="bi bi-calendar-event me-1"></i>
-          {{ st.criado_em|date:"d/m/Y H:i" }}
-        </p>
+        {% if st.prazo_estipulado %}
+          <p class="mb-0 small text-muted">
+            <i class="bi bi-clock me-1"></i>
+            Novo prazo: {{ st.prazo_estipulado|date:"d/m/Y" }}
+            {% if st.status == "concluida" and st.prazo_estipulado < st.criado_em %}
+              <span class="text-danger fw-semibold ms-2">⛔ Concluída fora do prazo</span>
+            {% endif %}
+          </p>
+        {% endif %}
       </div>
     </div>
   {% empty %}

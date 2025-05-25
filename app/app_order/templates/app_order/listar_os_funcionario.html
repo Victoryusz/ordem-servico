@@ -1,171 +1,227 @@
 {% extends "app_order/base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Ordens em Andamento...</h2>
-  {% if etapas %}
-    <ul class="list-group mt-3">
-      {% for st in etapas %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <strong>Nº {{ st.order.numero_os|default:"—" }} – Serviço {{ st.ordem }}</strong><br>
-            Criada em: {{ st.criado_em|date:"d/m/Y H:i" }}
+<style>
+  body { background: #f4f5f7; }
+  .container { max-width: 900px; margin: 40px auto; padding: 0 16px; }
+  .nav-tabs .nav-link { cursor: pointer; }
+  .card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .card-info { flex: 1; }
+  .card-title { margin: 0 0 8px; font-size: 18px; color: #222; }
+  .card-meta { margin: 4px 0; font-size: 14px; color: #666; }
+  .card-meta.small { font-size: 12px; }
+  .deadline.ok { color: green; font-weight: bold; }
+  .deadline.passed { color: red; font-weight: bold; }
+  .icon-edit {
+    cursor: pointer;
+    margin-left: 8px;
+    color: #888;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  .actions a, .actions button {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .actions .manage { background: #007bff; }
+  .actions .manage:hover { background: #0056b3; }
+  .actions .details { background: #17a2b8; margin-left: 8px; }
+  .actions .details:hover { background: #117a8b; }
+</style>
+
+<div class="container">
+  <h2 class="mb-4">Painel de Ordens de Serviço</h2>
+
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#andamento">Em andamento</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#criadas">Criadas por mim</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#participei">Que participei</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div class="tab-pane fade show active" id="andamento">
+      {% if etapas %}
+        {% for stage in etapas %}
+          <div class="card">
+            <div class="card-info">
+              <p class="card-title">Nº {{ stage.order.numero_os }} – Serviço {{ stage.ordem }}</p>
+              <p class="card-meta"><i class="bi bi-calendar-event me-1"></i> Criada em: {{ stage.criado_em|date:"d/m/Y H:i" }}</p>
+
+              {% if stage.order.prazo_inicial %}
+                <p class="card-meta">
+                  <i class="bi bi-alarm me-1"></i> Prazo inicial:
+                  <span class="deadline {% if stage.ordem == 1 and stage.order.stages.count == 1 and stage.order.prazo_inicial and stage.order.prazo_inicial < now %}passed{% else %}ok{% endif %}">
+                    {{ stage.order.prazo_inicial|date:"d/m/Y" }}
+                    {% if stage.ordem == 1 and stage.order.stages.count == 1 and stage.order.prazo_inicial and stage.order.prazo_inicial < now %}
+                      <i class="bi bi-exclamation-triangle-fill text-danger fw-bold ms-1"></i>
+                    {% endif %}
+                  </span>
+                </p>
+              {% endif %}
+
+              <p class="card-meta">
+                <i class="bi bi-calendar-range me-1"></i> Novo prazo:
+                <span class="deadline {% if stage.prazo_estipulado and stage.prazo_estipulado < now %}passed{% else %}ok{% endif %}">
+                  {{ stage.prazo_estipulado|date:"d/m/Y" }}
+                </span>
+                <span class="icon-edit" data-bs-toggle="modal" data-bs-target="#modalPrazo{{ stage.id }}">✎</span>
+              </p>
+            </div>
+            <div class="actions">
+              <a href="{% url 'acao_stage' stage.id %}" class="manage"><i class="bi bi-tools me-1"></i>Gerenciar</a>
+              <button class="details" data-bs-toggle="modal" data-bs-target="#timeline{{ stage.id }}">
+                <i class="bi bi-clock-history me-1"></i>Ver Detalhes
+              </button>
+            </div>
           </div>
-          <div>
-            {% if st.order.status == 'aguardando' %}
-              <button
-                class="btn btn-sm btn-info btn-detalhes-os"
-                data-os-id="{{ st.order.id }}"
-                data-os-numero="{{ st.order.numero_os|default:'—' }}"
-              >Ver Detalhes</button>
-            {% else %}
-              <a href="{% url 'acao_stage' stage_id=st.id %}"
-                 class="btn btn-sm btn-primary">
-                Gerenciar Serviço
-              </a>
-              <button
-                class="btn btn-sm btn-info btn-detalhes-os"
-                data-os-id="{{ st.order.id }}"
-                data-os-numero="{{ st.order.numero_os|default:'—' }}"
-              >Ver Detalhes</button>
-            {% endif %}
+
+          <!-- Modal Alterar Prazo -->
+          <div class="modal fade" id="modalPrazo{{ stage.id }}" tabindex="-1">
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <form method="post" action="{% url 'acao_stage' stage.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="ajustar_prazo" value="true">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Alterar prazo – OS {{ stage.order.numero_os }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <label for="id_prazo_estipulado_{{ stage.id }}" class="form-label">Novo prazo</label>
+                    <input 
+                      type="date" 
+                      name="prazo_estipulado" 
+                      id="id_prazo_estipulado_{{ stage.id }}" 
+                      class="form-control" 
+                      value="{{ stage.prazo_estipulado|date:'Y-m-d' }}"
+                    >
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <div class="alert alert-info mt-3">
-      Não há trabalhos em andamento para você.
-    </div>
-  {% endif %}
 
-  <hr class="my-4">
+          <!-- Modal Timeline -->
+          <div class="modal fade" id="timeline{{ stage.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Histórico – OS {{ stage.order.numero_os }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  {% include "app_order/partials/timeline.html" with etapas=stage.order.stages.all %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-info">Você não tem ordens em andamento.</div>
+      {% endif %}
+    </div>
 
-  <h2>Ordens criadas por mim</h2>
-  {% if criadas %}
-    <div class="table-responsive">
-      <table class="table table-striped mt-2">
-        <thead>
-          <tr>
-            <th>Nº</th>
-            <th>Descrição</th>
-            <th class="d-none d-sm-table-cell">Status</th>
-            <th class="d-none d-md-table-cell">Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for os in criadas %}
-            <tr>
-              <td>{{ os.numero_os|default:"—" }}</td>
-              <td>{{ os.descricao|truncatechars:40 }}</td>
-              <td class="d-none d-sm-table-cell">{{ os.get_status_display }}</td>
-              <td class="d-none d-md-table-cell">{{ os.data_solicitacao|date:"d/m/Y H:i" }}</td>
-              <td>
-                <button
-                  class="btn btn-sm btn-info btn-detalhes-os"
-                  data-os-id="{{ os.id }}"
-                  data-os-numero="{{ os.numero_os|default:'—' }}"
-                >Ver Detalhes</button>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <!-- Aba Criadas por mim -->
+    <div class="tab-pane fade" id="criadas">
+      {% if criadas %}
+        {% for os in criadas %}
+          <div class="card">
+            <div class="card-info">
+              <p class="card-title">
+                <i class="bi bi-clipboard me-1"></i>Nº {{ os.numero_os }} – {{ os.descricao|truncatechars:30 }}
+              </p>
+              <p class="card-meta"><i class="bi bi-calendar-event me-1"></i>Data: {{ os.data_solicitacao|date:"d/m/Y H:i" }}</p>
+              <p class="card-meta"><i class="bi bi-flag me-1"></i>Status: {{ os.get_status_display }}</p>
+            </div>
+            <div class="actions">
+              <button class="details" data-bs-toggle="modal" data-bs-target="#timelineOS{{ os.id }}">
+                <i class="bi bi-clock-history me-1"></i>Ver Detalhes
+              </button>
+            </div>
+          </div>
+          <div class="modal fade" id="timelineOS{{ os.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Histórico – OS {{ os.numero_os }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  {% include "app_order/partials/timeline.html" with etapas=os.stages.all %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-secondary">Você ainda não solicitou nenhuma OS.</div>
+      {% endif %}
     </div>
-  {% else %}
-    <div class="alert alert-secondary mt-2">
-      Você ainda não solicitou nenhuma OS.
-    </div>
-  {% endif %}
 
-  <h2 class="mt-4">Ordens que participei</h2>
-  {% if contribui %}
-    <div class="table-responsive">
-      <table class="table table-striped mt-2">
-        <thead>
-          <tr>
-            <th>Nº</th>
-            <th>Descrição</th>
-            <th class="d-none d-sm-table-cell">Status</th>
-            <th class="d-none d-md-table-cell">Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for os in contribui %}
-            <tr>
-              <td>{{ os.numero_os|default:"—" }}</td>
-              <td>{{ os.descricao|truncatechars:40 }}</td>
-              <td class="d-none d-sm-table-cell">{{ os.get_status_display }}</td>
-              <td class="d-none d-md-table-cell">{{ os.data_solicitacao|date:"d/m/Y H:i" }}</td>
-              <td>
-                <button
-                  class="btn btn-sm btn-info btn-detalhes-os"
-                  data-os-id="{{ os.id }}"
-                  data-os-numero="{{ os.numero_os|default:'—' }}"
-                >Ver Detalhes</button>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <div class="alert alert-secondary mt-2">
-      Você ainda não contribuiu em nenhuma OS.
-    </div>
-  {% endif %}
-</div>
-
-<!-- Modal para timeline -->
-<div class="modal fade" id="modalDetalhesOS" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          Historico - nº <span id="modalNumeroOS">—</span>
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="conteudo-timeline" class="py-2"></div>
-      </div>
+    <!-- Aba Que participei -->
+    <div class="tab-pane fade" id="participei">
+      {% if contribui %}
+        {% for os in contribui %}
+          <div class="card">
+            <div class="card-info">
+              <p class="card-title">
+                <i class="bi bi-clipboard-check me-1"></i>Nº {{ os.numero_os }} – {{ os.descricao|truncatechars:30 }}
+              </p>
+              <p class="card-meta"><i class="bi bi-calendar-event me-1"></i>Data: {{ os.data_solicitacao|date:"d/m/Y H:i" }}</p>
+              <p class="card-meta"><i class="bi bi-flag me-1"></i>Status: {{ os.get_status_display }}</p>
+            </div>
+            <div class="actions">
+              <button class="details" data-bs-toggle="modal" data-bs-target="#timelinePart{{ os.id }}">
+                <i class="bi bi-clock-history me-1"></i>Ver Detalhes
+              </button>
+            </div>
+          </div>
+          <div class="modal fade" id="timelinePart{{ os.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Histórico – OS {{ os.numero_os }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  {% include "app_order/partials/timeline.html" with etapas=os.stages.all %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-secondary">Você ainda não participou de nenhuma OS.</div>
+      {% endif %}
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  const modalEl = document.getElementById('modalDetalhesOS');
-  const modal   = new bootstrap.Modal(modalEl);
-  const body    = modalEl.querySelector('#conteudo-timeline');
-  const titulo  = modalEl.querySelector('#modalNumeroOS');
-
-  document.querySelectorAll('.btn-detalhes-os').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const osId     = btn.getAttribute('data-os-id');
-      const numeroOs = btn.getAttribute('data-os-numero');
-      // Atualiza o número no título do modal
-      titulo.textContent = numeroOs;
-
-      fetch(`/detalhes-os/${osId}/`)
-        .then(response => {
-          if (!response.ok) throw new Error('Falha ao carregar detalhes');
-          return response.text();
-        })
-        .then(html => {
-          body.innerHTML = html;
-          modal.show();
-        })
-        .catch(error => {
-          body.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-          modal.show();
-        });
-    });
-  });
-});
-</script>
 {% endblock %}

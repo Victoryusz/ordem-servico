@@ -28,7 +28,7 @@
 
           {# Renderiza todos os campos exceto SLA #}
           {% for field in form %}
-            {% if field.name != 'prazo_estipulado' %}
+            {% if field.name != 'prazo_inicial' %}
               <div class="mb-3">
                 <label class="form-label">{{ field.label }}</label>
                 {{ field }}
@@ -44,17 +44,17 @@
 
           {# Campo SLA manualmente inserido #}
           <div class="mb-3">
-            <label for="id_prazo_estipulado" class="form-label">
+            <label for="id_prazo_inicial" class="form-label">
               Prazo
               <span data-bs-toggle="tooltip" title="Service Level Agreement – data limite para conclusão">
                 <i class="bi bi-info-circle"></i>
               </span>
             </label>
-            {{ form.prazo_estipulado }}
-            {% if form.prazo_estipulado.help_text %}
-              <div class="form-text">{{ form.prazo_estipulado.help_text }}</div>
+            {{ form.prazo_inicial }}
+            {% if form.prazo_inicial.help_text %}
+              <div class="form-text">{{ form.prazo_inicial.help_text }}</div>
             {% endif %}
-            {% for error in form.prazo_estipulado.errors %}
+            {% for error in form.prazo_inicial.errors %}
               <div class="text-danger small">{{ error }}</div>
             {% endfor %}
           </div>

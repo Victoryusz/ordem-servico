@@ -1,0 +1,118 @@
+/* === Timeline Desktop (md+) === */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin-left: 0.5rem;
+  border-left: 2px solid #dee2e6;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2.1rem;
+  top: 0.5rem;
+}
+
+.timeline-marker .badge {
+  font-size: 1.2rem;
+}
+
+.timeline-content {
+  border-radius: 0.5rem;
+  padding: 0;
+}
+
+.timeline-content .card-body {
+  padding: 0.75rem 1rem;
+}
+
+.timeline-item.completed .timeline-content {
+  background-color: #f8f9fa;
+}
+
+.timeline-item.active .timeline-content {
+  background-color: #e7f1ff;
+  border-left: 3px solid #0d6efd;
+}
+
+
+/* === Stepper Colapsável (Mobile: sm–md) === */
+.timeline-stepper .step {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.timeline-stepper .step:last-child {
+  border-bottom: none;
+}
+
+.timeline-stepper .step button {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0.75rem 0;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-stepper .step .badge {
+  font-size: 0.9rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-stepper .step i.bi-chevron-down {
+  transition: transform 0.2s ease;
+}
+
+.timeline-stepper .step .collapse {
+  padding-left: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+/* Gira o ícone quando aberto */
+.timeline-stepper .step button[aria-expanded="true"] i.bi-chevron-down {
+  transform: rotate(180deg);
+}
+
+/* Ajustes de tipografia e ícones */
+.timeline-stepper .step button .text-muted {
+  font-size: 0.8rem;
+}
+
+/* Imagens dentro do collapse */
+.timeline-stepper .step .collapse img {
+  max-height: 120px;
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Garante que o stepper ocupe toda a largura disponível */
+.timeline-stepper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Adiciona padding lateral para que o conteúdo não fique “colado” na borda */
+.timeline-stepper .step .collapse {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;   /* <-- novo */
+  padding-top: 0.5rem;
+}
+
+/* (Opcional) Espaço extra no rodapé caso o conteúdo role */
+.timeline-stepper .step:last-child .collapse {
+  padding-bottom: 1rem;    /* evita corte no último item */
+}

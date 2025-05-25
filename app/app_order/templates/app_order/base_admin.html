@@ -25,6 +25,20 @@
         background-color: #f8f9fa;
       }
 
+      /* navbar fixa */
+      .navbar.fixed-top {
+        z-index: 1200;
+      }
+
+      /* garante que o backdrop do modal fique abaixo da navbar */
+      .modal-backdrop {
+        z-index: 1199 !important;
+      }
+      /* e o modal por cima de tudo */
+      .modal {
+        z-index: 1201 !important;
+      }
+
       main {
         flex: 1;
         padding-top: 80px;
@@ -112,17 +126,34 @@
         <div class="collapse navbar-collapse" id="navbarAdmin">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.url_name == 'painel_admin' %}active{% endif %}" href="{% url 'painel_admin' %}">
+              <a
+                class="nav-link {% if request.resolver_match.url_name == 'painel_admin' %}active{% endif %}"
+                href="{% url 'painel_admin' %}"
+              >
                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.url_name == 'admin_user_list' %}active{% endif %}" href="{% url 'admin_user_list' %}">
+              <a
+                class="nav-link {% if request.resolver_match.url_name == 'resumo_os' %}active{% endif %}"
+                href="{% url 'resumo_os' %}"
+              >
+                <i class="bi bi-bar-chart-line me-1"></i>Resumo
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.resolver_match.url_name == 'admin_user_list' %}active{% endif %}"
+                href="{% url 'admin_user_list' %}"
+              >
                 <i class="bi bi-people me-1"></i>Usuários
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link {% if request.resolver_match.namespace == 'admin' or request.resolver_match.url_name == 'admin:index' %}active{% endif %}" href="{% url 'admin:index' %}">
+              <a
+                class="nav-link {% if request.resolver_match.namespace == 'admin' or request.resolver_match.url_name == 'admin:index' %}active{% endif %}"
+                href="{% url 'admin:index' %}"
+              >
                 <i class="bi bi-gear-fill me-1"></i>Django Admin
               </a>
             </li>

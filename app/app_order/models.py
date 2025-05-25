@@ -56,13 +56,12 @@ class OrdemServico(models.Model):
         auto_now_add=True, help_text="Data e hora da criação da solicitação."
     )
 
-    prazo_estipulado = models.DateTimeField(
+    prazo_inicial = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="Data e hora estimada para a conclusão do serviço.",
+        help_text="Prazo inicial estimado para a conclusão do serviço.",
     )
 
-    # ← Aqui adicionamos o limite de repasses antes de precisar de liberação
     repass_limite = models.PositiveIntegerField(
         default=5,
         help_text="Máximo de repasses antes de solicitar liberação pelo admin.",
@@ -89,14 +88,14 @@ class Stage(models.Model):
     order = models.ForeignKey(
         OrdemServico,
         related_name="stages",
-        on_delete=models.SET_NULL,  # ⬅️ Deixa NULL se a OS for excluída
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         help_text="Ordem de Serviço (fica vazio se a OS for excluída).",
     )
     tecnico = models.ForeignKey(
         User,
-        on_delete=models.SET_NULL,  # ⬅️ Deixa NULL se o técnico for excluído
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         help_text="Técnico responsável (fica vazio se excluído).",
@@ -122,6 +121,11 @@ class Stage(models.Model):
         blank=True,
         null=True,
         help_text="Foto anexada pelo técnico ao concluir a etapa.",
+    )
+    prazo_estipulado = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Data e hora estimada para a conclusão desta etapa.",
     )
     criado_em = models.DateTimeField(
         auto_now_add=True, help_text="Data e hora de criação da etapa."

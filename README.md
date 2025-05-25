@@ -1,12 +1,12 @@
 # 🛠️ app_order
 
-Sistema web de Ordens de Serviço (OS) com autenticação, controle de status e envio de imagem na conclusão da OS.
+Sistema web de Ordens de Serviço (OS) com autenticação, Sistema feito especificamente para empresas de GERADORES DE ENERGIA.
 
 ## 🔑 Funcionalidades
 
 - Registro e login de usuários
 - Perfis: Funcionário e Administrador
-- Solicitação, acompanhamento e conclusão de OS
+- Solicitação, acompanhamento e conclusão OU repasse de OS
 - Envio obrigatório de foto e comentário na finalização
 - Painéis separados por perfil com permissões específicas
 
@@ -21,6 +21,6 @@ Sistema web de Ordens de Serviço (OS) com autenticação, controle de status e 
 
 ---
 
-> 🧪 **Status:** developing...
+> 🧪 **Status:** PARA ESTUDOS APENAS
 
 ---

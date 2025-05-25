@@ -11,33 +11,33 @@
   <div class="row mb-4">
     <div class="col-md-3 mb-3">
       <div class="card text-white bg-warning h-100">
-        <div class="card-body">
+        <div class="card-body text-center">
           <h6 class="card-title">Aguardando aprovação</h6>
-          <p class="card-text display-6">{{ novas_os }}</p>
+          <p class="display-6">{{ novas_os }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 mb-3">
       <div class="card text-white bg-info h-100">
-        <div class="card-body">
+        <div class="card-body text-center">
           <h6 class="card-title">Em andamento</h6>
-          <p class="card-text display-6">{{ total_andamento }}</p>
+          <p class="display-6">{{ total_andamento }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 mb-3">
       <div class="card text-white bg-success h-100">
-        <div class="card-body">
+        <div class="card-body text-center">
           <h6 class="card-title">Concluídas</h6>
-          <p class="card-text display-6">{{ concluidas }}</p>
+          <p class="display-6">{{ concluidas }}</p>
         </div>
       </div>
     </div>
     <div class="col-md-3 mb-3">
       <div class="card text-white bg-secondary h-100">
-        <div class="card-body">
+        <div class="card-body text-center">
           <h6 class="card-title">Novas (24h)</h6>
-          <p class="card-text display-6">{{ novas_24h }}</p>
+          <p class="display-6">{{ novas_24h }}</p>
         </div>
       </div>
     </div>
@@ -49,23 +49,21 @@
   <table class="table table-striped align-middle">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Cliente</th>
-        <th>Status</th>
         <th>Nº OS</th>
+        <th>Nome</th>
+        <th>Status</th>
         <th>Data</th>
         <th>Etapas</th>
-        <th>Limite</th>
+        <th>Limites de Repasses</th>
         <th>Ações</th>
       </tr>
     </thead>
     <tbody>
       {% for o in ordens %}
         <tr data-id="{{ o.id }}">
-          <td>{{ o.id }}</td>
+          <td>{{ o.numero_os|default:"—" }}</td>
           <td>{{ o.nome_cliente }}</td>
           <td>{{ o.get_status_display }}</td>
-          <td class="cell-numero-os">{{ o.numero_os|default:"—" }}</td>
           <td>{{ o.data_solicitacao|date:"d/m/Y H:i" }}</td>
           <td>{{ o.stage_count }}</td>
           <td>{{ o.repass_limite }}</td>
@@ -75,6 +73,9 @@
                 Atribuir Nº
               </button>
             {% endif %}
+            <button class="btn btn-sm btn-success btn-repasses" data-os-id="{{ o.id }}">
+              +5 Repasses
+            </button>
             <button class="btn btn-sm btn-info btn-detalhes-os" data-os-id="{{ o.id }}">
               Detalhes
             </button>
@@ -82,7 +83,7 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="8" class="text-center text-muted">Nenhuma OS encontrada.</td>
+          <td colspan="7" class="text-center text-muted">Nenhuma OS encontrada.</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -124,6 +125,24 @@
     </div>
   </div>
 </div>
+
+<!-- Modal para exibir detalhes da OS -->
+<div class="modal fade" id="modalDetalhes" tabindex="-1" aria-labelledby="modalDetalhesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDetalhesLabel">Detalhes da OS</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body" id="modalDetalhesBody">
+        <div class="text-center py-5">
+          <div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_scripts %}
@@ -145,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const input = modalEl.querySelector('#inputNumeroOs');
   let currentOsId = null;
 
+  // Atribuir número
   document.querySelectorAll('.btn-atribuir').forEach(btn => {
     btn.addEventListener('click', () => {
       currentOsId = btn.dataset.osId;
@@ -154,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
       input.focus();
     });
   });
-
   document.getElementById('btnAtribuirConfirm').addEventListener('click', () => {
     const num = input.value.trim();
     if (!num) {
@@ -162,14 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     input.classList.remove('is-invalid');
-
-    const form = new URLSearchParams();
-    form.append('numero_os', num);
-
     fetch(`{% url 'atribuir_numero_os' 0 %}`.replace('/0/','/'+currentOsId+'/'), {
       method: 'POST',
       headers: { 'X-CSRFToken': csrftoken },
-      body: form
+      body: new URLSearchParams({ numero_os: num })
     })
     .then(r => r.json())
     .then(data => {
@@ -184,7 +199,42 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(() => alert('Erro de rede. Tente novamente.'));
   });
 
-  input.addEventListener('input', () => input.classList.remove('is-invalid'));
+  // +5 Repasses
+  document.querySelectorAll('.btn-repasses').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const osId = btn.dataset.osId;
+      fetch(`/painel-admin/liberar-repasses/${osId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken }
+      })
+      .then(r => r.json())
+      .then(data => { if (data.success) location.reload(); })
+      .catch(() => alert('Erro ao liberar repasses.'));
+    });
+  });
+
+  // Detalhes da OS
+  document.querySelectorAll('.btn-detalhes-os').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const osId = btn.dataset.osId;
+      const detalheModalEl = document.getElementById('modalDetalhes');
+      const detalheBody    = document.getElementById('modalDetalhesBody');
+      const detalheModal   = new bootstrap.Modal(detalheModalEl);
+
+      detalheBody.innerHTML = `
+        <div class="text-center py-5">
+          <div class="spinner-border" role="status"><span class="visually-hidden">Carregando...</span></div>
+        </div>`;
+      detalheModal.show();
+
+      fetch(`/detalhes-os/${osId}/`)
+        .then(r => r.text())
+        .then(html => { detalheBody.innerHTML = html; })
+        .catch(() => {
+          detalheBody.innerHTML = '<div class="alert alert-danger">Erro ao carregar detalhes.</div>';
+        });
+    });
+  });
 });
 </script>
 {% endblock %}

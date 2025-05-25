@@ -2,55 +2,121 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel do Funcionário</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f4f6f9;
+      }
+      .card-hover:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+      }
+      .sidebar {
+        min-height: 100vh;
+        background-color: #343a40;
+        color: white;
+      }
+      .sidebar .nav-link {
+        color: #ccc;
+      }
+      .sidebar .nav-link.active,
+      .sidebar .nav-link:hover {
+        color: white;
+        background-color: #495057;
+      }
+    </style>
   </head>
-  <body class="bg-light">
-    <!-- Menu superior fixo -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Painel do Funcionário</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar lateral -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar p-3">
+          <h4 class="mb-4">
+            <i class="bi bi-rocket-takeoff"></i> Juma OS
+            <div class="fs-6 text-white-50">Gestão de Ordens de Serviço</div>
+          </h4>
+          <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'solicitar_os' %}">Nova OS</a>
+              <a class="nav-link active" href="{% url 'painel_funcionario' %}">
+                <i class="bi bi-house-door"></i> Início
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'listar_os_funcionario' %}"
-                >Minhas OS</a
-              >
+              <a class="nav-link" href="{% url 'solicitar_os' %}">
+                <i class="bi bi-plus-circle"></i> Nova OS
+              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-danger" href="{% url 'logout' %}">Sair</a>
+              <a class="nav-link" href="{% url 'listar_os_funcionario' %}">
+                <i class="bi bi-list-check"></i> Minhas OS
+              </a>
+            </li>
+            <li class="nav-item mt-3">
+              <a class="nav-link text-danger" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-left"></i> Sair
+              </a>
             </li>
           </ul>
-        </div>
-      </div>
-    </nav>
+        </nav>
 
-    <!-- Conteúdo principal -->
-    <div class="container mt-5">
-      <div class="card p-4 shadow-sm">
-        <h2 class="mb-3">Bem-vindo, {{ request.user.username }}!</h2>
-        <p>Aqui você poderá visualizar e concluir suas ordens de serviço.</p>
-        <ul class="list-group">
-          <li class="list-group-item">
-            <a href="{% url 'listar_os_funcionario' %}"
-              >📋 Ver minhas ordens de serviço</a
-            >
-          </li>
-        </ul>
+        <!-- Conteúdo -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+          <div class="text-center mb-5">
+            <h2>Bem-vindo, {{ request.user.username }}</h2>
+            <p class="text-muted">
+              Gerencie suas ordens de serviço de forma simples e rápida.
+            </p>
+          </div>
+
+          <div class="row justify-content-center g-4">
+            <div class="col-md-5">
+              <div class="card card-hover text-center p-4">
+                <div class="mb-3">
+                  <i
+                    class="bi bi-plus-circle"
+                    style="font-size: 2.5rem; color: #0d6efd"
+                  ></i>
+                </div>
+                <h5 class="card-title">Nova Solicitação</h5>
+                <p class="card-text text-muted">
+                  Preencha o formulário para solicitar um novo serviço.
+                </p>
+                <a href="{% url 'solicitar_os' %}" class="btn btn-primary mt-2"
+                  >Solicitar OS</a
+                >
+              </div>
+            </div>
+
+            <div class="col-md-5">
+              <div class="card card-hover text-center p-4">
+                <div class="mb-3">
+                  <i
+                    class="bi bi-list-check"
+                    style="font-size: 2.5rem; color: #198754"
+                  ></i>
+                </div>
+                <h5 class="card-title">Minhas OS</h5>
+                <p class="card-text text-muted">
+                  Veja suas ordens de serviço e acompanhe o progresso.
+                </p>
+                <a
+                  href="{% url 'listar_os_funcionario' %}"
+                  class="btn btn-success mt-2"
+                  >Ver Ordens</a
+                >
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
 

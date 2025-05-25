@@ -2,31 +2,152 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Cadastro de Usuário</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Cadastro — JumaOS</title>
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <style>
+      body {
+        background-color: #f0f4ff;
+      }
+      .logo-header {
+        padding: 1rem;
+      }
+      .card-wrapper {
+        max-width: 500px;
+        width: 100%;
+      }
+      .footer-credit {
+        padding: 1rem 0;
+        font-size: 0.85rem;
+      }
+    </style>
   </head>
-  <body class="bg-light">
-    <div class="container mt-5" style="max-width: 500px">
-      <div class="card p-4 shadow-sm">
-        <h4 class="mb-4 text-center">Criar uma nova conta</h4>
+  <body>
+    <div
+      class="d-flex flex-column min-vh-100 align-items-center justify-content-center px-3"
+    >
+      <!-- Logo/header -->
+      <div
+        class="logo-header d-flex justify-content-center align-items-center"
+      >
+        <i
+          class="bi bi-rocket-takeoff-fill fs-1"
+          style="color:#0b2545;"
+        ></i>
+        <span
+          class="h4 ms-2 mb-0 fw-bold"
+          style="color:#0b2545; letter-spacing:1px;"
+          >JUMA OS</span
+        >
+      </div>
 
-        <!-- Formulário de cadastro -->
-        <form method="post">
-          {% csrf_token %} {{ form.as_p }}
+      <!-- Card de cadastro -->
+      <div class="card shadow-sm card-wrapper">
+        <div class="card-body p-4">
+          <h4
+            class="text-center mb-2 fw-bold"
+            style="color:#0b2545; letter-spacing:0.5px;"
+          >
+            Criar conta
+          </h4>
+          <p class="text-center text-muted mb-4">
+            Digite seus dados para criar uma nova conta
+          </p>
 
-          <button type="submit" class="btn btn-success w-100 mt-3">
-            Cadastrar e entrar
-          </button>
-        </form>
+          <!-- Formulário de cadastro -->
+          <form method="post" novalidate>
+            {% csrf_token %}
 
-        <!-- Link para login se já tiver conta -->
-        <div class="text-center mt-3">
-          <a href="{% url 'login' %}">Já tem conta? Faça login</a>
+            {# exibe erros gerais #}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger mb-3">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              {{ form.nome.label_tag }}
+              {{ form.nome }}
+              {{ form.nome.errors }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.email.label_tag }}
+              {{ form.email }}
+              {{ form.email.errors }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.username.label_tag }}
+              <div class="input-group input-group-lg">
+                <span class="input-group-text">@</span>
+                {{ form.username }}
+              </div>
+              {{ form.username.errors }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.password.label_tag }}
+              {{ form.password }}
+              {{ form.password.errors }}
+            </div>
+
+            <div class="mb-3">
+              {{ form.confirm_password.label_tag }}
+              {{ form.confirm_password }}
+              {{ form.confirm_password.errors }}
+            </div>
+
+            <div class="mb-3 form-check">
+              {{ form.terms }}
+              <label class="form-check-label" for="{{ form.terms.id_for_label }}">
+                Estou de acordo com os
+                <a href="{% url 'termos' %}" target="_blank">termos e condições</a>
+              </label>
+              {{ form.terms.errors }}
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100">
+              Cadastrar e entrar
+            </button>
+          </form>
+
+          <!-- Link para login -->
+          <div class="text-center mt-4">
+            <small>Já tem uma conta?</small>
+            <a href="{% url 'login' %}" class="fw-medium ms-1"
+              >Faça login</a
+            >
+          </div>
         </div>
       </div>
+
+      <!-- Footer credit -->
+      <div class="footer-credit text-center">
+        Desenvolvidor por
+        <a
+          href="https://github.com/Victoryusz"
+          target="_blank"
+          >vick1st</a
+        >
+      </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    ></script>
   </body>
 </html>

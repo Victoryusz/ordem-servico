@@ -1,0 +1,83 @@
+{% extends "app_order/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Serviço {{ stage.ordem }} da OS {{ stage.order.numero_os }}</h2>
+  <p><strong>Status:</strong> {{ stage.get_status_display }}</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {# Removido o bloco de prazo daqui, pois a alteração de prazo fica apenas no modal #}
+
+    <div class="mb-3">
+      {{ form.comentario.label_tag }}
+      {{ form.comentario }}
+      {{ form.comentario.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.foto.label_tag }}
+      {{ form.foto }}
+      {{ form.foto.errors }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.repassar_para.label_tag }}
+      {{ form.repassar_para }}
+      <small class="form-text text-muted">{{ form.repassar_para.help_text }}</small>
+      {{ form.repassar_para.errors }}
+    </div>
+
+    <div class="form-check mb-3">
+      {{ form.finalizar_os }}
+      {{ form.finalizar_os.label_tag }}
+      <small class="form-text text-muted">{{ form.finalizar_os.help_text }}</small>
+      {{ form.finalizar_os.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-success" disabled>Enviar</button>
+    <a href="{% url 'listar_os_funcionario' %}" class="btn btn-secondary">Voltar</a>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const repassarField  = document.getElementById('id_repassar_para');
+  const finalizarField = document.getElementById('id_finalizar_os');
+  const fotoField      = document.getElementById('id_foto');
+  const submitBtn      = document.querySelector('button[type="submit"]');
+
+  // foto obrigatória no frontend
+  fotoField.required = true;
+
+  function syncFinalizar() {
+    // se repassar for escolhido, não permite finalizar ao mesmo tempo
+    if (repassarField.value) {
+      finalizarField.checked  = false;
+      finalizarField.disabled = true;
+    } else {
+      finalizarField.disabled = false;
+    }
+  }
+
+  function syncSubmit() {
+    const hasFoto = fotoField.files && fotoField.files.length > 0;
+    const flowOk  = repassarField.value || finalizarField.checked;
+    submitBtn.disabled = !(hasFoto && flowOk);
+  }
+
+  // escutar mudanças
+  repassarField.addEventListener('change', function() {
+    syncFinalizar();
+    syncSubmit();
+  });
+  finalizarField.addEventListener('change', syncSubmit);
+  fotoField.addEventListener('change', syncSubmit);
+
+  // estado inicial
+  syncFinalizar();
+  syncSubmit();
+});
+</script>
+{% endblock %}

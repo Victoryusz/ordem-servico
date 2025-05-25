@@ -1,0 +1,72 @@
+{% extends "app_order/base_admin.html" %}
+{% load static %}
+{% block title %}Resumo Geral — Juma OS{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <!-- KPIs -->
+  <div class="row text-center mb-5">
+    {% for label, key in
+        [('Total','total'),
+         ('Aguardando','aguardando'),
+         ('Em andamento','andamento'),
+         ('Concluídas','concluida')] %}
+      <div class="col-md-3 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ label }}</h5>
+            <p class="display-6">{{ kp[key] }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Tempo médio</h5>
+          <p class="display-6">
+            {% if kp.avg_tempo %}
+              {{ kp.avg_tempo }}
+            {% else %}
+              –
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico de evolução -->
+  <div class="mb-5">
+    <h4>Evolução diária (últimos 30 dias)</h4>
+    <canvas id="evolucaoChart" style="max-height:300px;"></canvas>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const dados = JSON.parse('{{ series_json|escapejs }}');
+  const ctx   = document.getElementById('evolucaoChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dados.map(d => d.dia),
+      datasets: [{
+        label: 'OS criadas',
+        data: dados.map(d => d.qty),
+        tension: 0.3,
+        fill: false
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

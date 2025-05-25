@@ -7,18 +7,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('app_order', '0002_ordemservico_usuario'),
+        ("app_order", "0002_ordemservico_usuario"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ordemservico',
-            name='comentario_conclusao',
-            field=models.TextField(blank=True, help_text='Comentário final do funcionário sobre a conclusão do serviço.', null=True),
+            model_name="ordemservico",
+            name="comentario_conclusao",
+            field=models.TextField(
+                blank=True,
+                help_text="Comentário final do funcionário sobre a conclusão do serviço.",
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='ordemservico',
-            name='imagem_conclusao',
-            field=models.ImageField(blank=True, help_text='Imagem do serviço concluído.', null=True, upload_to='os_concluidas/', validators=[django.core.validators.FileExtensionValidator(['jpg', 'jpeg', 'png'])]),
+            model_name="ordemservico",
+            name="imagem_conclusao",
+            field=models.ImageField(
+                blank=True,
+                help_text="Imagem do serviço concluído.",
+                null=True,
+                upload_to="os_concluidas/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        ["jpg", "jpeg", "png"]
+                    )
+                ],
+            ),
         ),
     ]

@@ -21,6 +21,6 @@ Sistema web de Ordens de Serviço (OS) com autenticação, Sistema feito especif
 
 ---
 
-> 🧪 **Status:** PARA ESTUDOS APENAS
+> 🧪 **Status:** APENAS PARA ESTUDOS ( PROJETO FEITO COM AUXLIO DE IA, AINDA NAO TINHA CONHECIMENTO SOBRE MODULARIZAÇÃO. )
 
 ---
